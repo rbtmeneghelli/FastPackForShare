@@ -1,14 +1,14 @@
 ﻿namespace FastPackForShare.Default;
 
-public class BaseDomainExceptionModel : Exception
+public sealed class BaseDomainException : Exception
 {
-    public BaseDomainExceptionModel(string error) : base(error)
+    public BaseDomainException(string error) : base(error)
     {
     }
 
     public static void When(bool hasError, string error)
     {
         if (hasError)
-            throw new BaseDomainExceptionModel(error);
+            throw new BaseDomainException(error);
     }
 }

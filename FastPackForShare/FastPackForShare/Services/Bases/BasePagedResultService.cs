@@ -27,29 +27,6 @@ public static class BasePagedResultService
         return result;
     }
 
-    public static string AddFilters(List<PagedFilterModel> sqlConditions)
-    {
-        string filters = string.Empty;
-
-        sqlConditions.ForEach(condition =>
-        {
-            if (condition.Value != null)
-            {
-                filters += $@"
-                        AND {condition.Column} ";
-
-                if (condition.Value.GetType() == typeof(string))
-                    filters += $"LIKE '%' + {condition.Parameter} + '%'";
-                else if (condition.Value is IEnumerable<int> || condition.Value is IEnumerable<string>)
-                    filters += $"IN {condition.Parameter}";
-                else
-                    filters += $"= {condition.Parameter}";
-            }
-        });
-
-        return filters;
-    }
-
     public static string GetPagedTSqlPagination(string query, int page, int pageSize)
     {
         var newQuery = $"{query} " +
@@ -57,28 +34,6 @@ public static class BasePagedResultService
                        $"FETCH NEXT {pageSize} ROWS ONLY";
 
         return newQuery;
-    }
-
-    public static string AddFieldsToUpdateQuery(IEnumerable<PagedFilterModel> parameters)
-    {
-        List<string> arrParameters = new List<string>();
-
-        foreach (var param in parameters)
-        {
-            Type paramType = param.GetType();
-            bool objectString = paramType == typeof(string) && !string.IsNullOrEmpty((string)param.Value);
-            bool objectInt = paramType == typeof(int) && (int)param.Value > 0;
-            bool objectBool = paramType == typeof(bool);
-
-            if (objectString)
-                arrParameters.Add($@"{param.Parameter} = @{param.Parameter}");
-            else if (objectInt)
-                arrParameters.Add($@"{param.Parameter} = @{param.Parameter}");
-            else if (objectBool)
-                arrParameters.Add($@"{param.Parameter} = @{param.Parameter}");
-        }
-
-        return arrParameters.Count > 0 ? string.Join(',', arrParameters) : string.Empty;
     }
 
     public static int GetDefaultPageIndex(int? pageIndex) => pageIndex.HasValue ? pageIndex.Value : 1;

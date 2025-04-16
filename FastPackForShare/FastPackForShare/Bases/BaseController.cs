@@ -1,0 +1,117 @@
+﻿using FastPackForShare.Constants;
+using FastPackForShare.Extensions;
+using FastPackForShare.Models;
+using FastPackForShare.Services;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cors;
+
+namespace FastPackForShare.Bases
+{
+    [ApiController]
+    [EnableCors("WbNotesCORS")]
+    [Produces("application/json")]
+    [ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomProduceResponseType<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseType<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomProduceResponseType<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseType<object>))]
+    public abstract class GenericController : ControllerBase
+    {
+        protected readonly IMediator _iMediator;
+        protected readonly INotificationMessageService _notificationService;
+
+        protected int HttpCodeStatus { get; set; }
+
+        protected GenericController(IMediator iMediator, INotificationMessageService notificationService)
+        {
+            _iMediator = iMediator;
+            HttpCodeStatus = ConstantHttpStatusCode.BAD_REQUEST_CODE;
+            _notificationService = notificationService;
+        }
+
+        protected bool ModelStateIsInvalid()
+        {
+            return ModelState.IsValid ? false : true;
+        }
+
+        protected void NotificationError(string mensagem)
+        {
+            _notificationService.Handle(new NotificationMessageModel(mensagem));
+        }
+
+        protected bool OperationIsValid()
+        {
+            return !_notificationService.HaveNotification();
+        }
+
+        private void NotificationModelIsInvalid(ModelStateDictionary modelState)
+        {
+            var erros = modelState.Values.SelectMany(e => e.Errors);
+            foreach (var erro in erros)
+            {
+                var errorMsg = GuardClauseExtension.IsNull(erro.Exception) ? erro.ErrorMessage : erro.Exception.Message;
+                NotificationError(errorMsg);
+            }
+        }
+
+        protected IActionResult CustomResponseModel(ModelStateDictionary modelState)
+        {
+            NotificationModelIsInvalid(modelState);
+            return CustomResponse(ConstantHttpStatusCode.BAD_REQUEST_CODE);
+        }
+
+        protected IActionResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
+        {
+            int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
+
+            if (OperationIsValid() && arrStatusCode.Contains(statusCode))
+            {
+                return StatusCode(statusCode, new
+                {
+                    success = true,
+                    data = result,
+                    message = statusCode == ConstantHttpStatusCode.CREATE_CODE
+                              ? ConstantMessageResponse.CREATE_CODE
+                              : messageResponse
+                });
+            }
+            else
+            {
+                return StatusCode(statusCode, new
+                {
+                    success = false,
+                    message = _notificationService.HaveNotification()
+                              ? ConstantMessageResponse.GetMessageResponse(statusCode)
+                              : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
+                });
+            }
+        }
+
+        protected IActionResult CustomResponse(CustomResponseModel customResponseModel)
+        {
+            int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
+
+            if (OperationIsValid() && arrStatusCode.Contains(customResponseModel.StatusCode))
+            {
+                return StatusCode(customResponseModel.StatusCode, new
+                {
+                    success = true,
+                    data = customResponseModel.Data,
+                    message = customResponseModel.StatusCode == ConstantHttpStatusCode.CREATE_CODE
+                              ? ConstantMessageResponse.CREATE_CODE
+                              : customResponseModel.Message
+                });
+            }
+            else
+            {
+                return StatusCode(customResponseModel.StatusCode, new
+                {
+                    success = false,
+                    message = _notificationService.HaveNotification()
+                              ? ConstantMessageResponse.GetMessageResponse(customResponseModel.StatusCode)
+                              : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
+                });
+            }
+        }
+    }
+}

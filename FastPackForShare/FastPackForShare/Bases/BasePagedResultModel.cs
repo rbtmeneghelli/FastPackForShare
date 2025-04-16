@@ -2,7 +2,7 @@
 
 namespace FastPackForShare.Default;
 
-public class BasePagedResultModel<T> : GenericPagedResultMOdel where T : class
+public sealed class BasePagedResultModel<T> : GenericPagedResultModel where T : class
 {
     public IEnumerable<T> Results { get; set; }
 
