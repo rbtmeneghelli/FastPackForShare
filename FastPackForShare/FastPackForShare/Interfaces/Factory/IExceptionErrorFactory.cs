@@ -1,4 +1,4 @@
-﻿namespace FastPackForShare.Services.Factory;
+﻿namespace FastPackForShare.Interfaces.Factory;
 
 public interface IExceptionErrorFactory
 {

@@ -9,6 +9,8 @@ using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 using FastPackForShare.Services;
 using Microsoft.Extensions.Configuration;
 using FastPackForShare.Services.Factory;
+using FastPackForShare.Interfaces;
+using FastPackForShare.Interfaces.Factory;
 
 
 namespace FastPackForShare.Containers;
@@ -37,9 +39,13 @@ public static class ContainerFastPackForShareServices
         .AddScoped<ITokenService, TokenService>()
         .AddTransient<IDataProtectionService, DataProtectionService>()
         .AddTransient<IExceptionErrorFactory, ExceptionErrorFactory>()
-                    .AddScoped(typeof(IDataFromApiService<>), typeof(DataFromApiService<>))
-          .AddTransient<ISeriLogService, SeriLogService>()
-           .AddScoped<IRedisService, RedisService>()
+        .AddScoped<IUserLoggedService, UserLoggedService>()
+        .AddTransient<ISeriLogService, SeriLogService>()
+        .AddScoped<IRedisService, RedisService>();
+
+          //          .AddScoped(typeof(IDataFromApiService<>), typeof(DataFromApiService<>))
+          //
+
 
         //.AddScoped(typeof(IFileService<>), typeof(FileService<>));
     }

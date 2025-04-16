@@ -1,6 +1,6 @@
 ﻿using FastPackForShare.Models;
 
-namespace FastPackForShare.Services;
+namespace FastPackForShare.Interfaces;
 
 public interface IMemoryCacheService<TData> : IDisposable where TData : class
 {

@@ -1,6 +1,6 @@
 ﻿using FastPackForShare.Models;
 
-namespace FastPackForShare.Services.Factory;
+namespace FastPackForShare.Interfaces.Factory;
 
 public interface IExceptionErrorModelFactory
 {

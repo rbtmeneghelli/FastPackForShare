@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.DataProtection;
+﻿using FastPackForShare.Interfaces;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace FastPackForShare.Services
 {

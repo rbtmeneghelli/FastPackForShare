@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using FastPackForShare.Models;
 
-namespace FastPackForShare.Services;
+namespace FastPackForShare.Interfaces;
 
 public interface ITokenService
 {

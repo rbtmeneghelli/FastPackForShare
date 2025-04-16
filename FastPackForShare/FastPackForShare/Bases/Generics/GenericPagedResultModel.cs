@@ -1,6 +1,6 @@
 ﻿namespace FastPackForShare.Bases.Generics;
 
-public abstract class GenericPagedResultMOdel
+public abstract class GenericPagedResultModel
 {
     public int? NextPage { get; set; }
     public int Page { get; set; }

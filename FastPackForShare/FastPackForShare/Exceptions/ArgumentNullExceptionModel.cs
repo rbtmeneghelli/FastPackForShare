@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using FastPackForShare.Models;
 using FastPackForShare.Constants;
-using FastPackForShare.Services.Factory;
+using FastPackForShare.Interfaces.Factory;
 
 namespace WbNotes.Application.Factory.ResponseErrorModel.Models;
 

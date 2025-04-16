@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using FastPackForShare.Cryptography;
 using FastPackForShare.Extensions;
+using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
 using Microsoft.IdentityModel.Tokens;
 

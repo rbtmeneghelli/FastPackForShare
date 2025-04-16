@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using FastPackForShare.Models;
 using FastPackForShare.Constants;
-using FastPackForShare.Services.Factory;
+using FastPackForShare.Interfaces.Factory;
 
 namespace FastPackForShare.Exceptions;
 
@@ -26,5 +26,4 @@ public sealed class SecurityTokenExceptionModel : IExceptionErrorModelFactory
 
         return exceptionErrorModel;
     }
-}
 }

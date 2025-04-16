@@ -1,10 +1,10 @@
 ﻿using FastPackForShare.Constants;
 using FastPackForShare.Extensions;
 using FastPackForShare.Models;
-using FastPackForShare.Services;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
+using FastPackForShare.Interfaces;
 
 namespace FastPackForShare.Bases
 {

@@ -1,4 +1,4 @@
-﻿namespace FastPackForShare.Services;
+﻿namespace FastPackForShare.Interfaces;
 
 public interface IDataProtectionService
 {

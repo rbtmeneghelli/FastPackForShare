@@ -1,5 +1,6 @@
 ﻿using FastPackForShare.Default;
 using FastPackForShare.Exceptions;
+using FastPackForShare.Interfaces.Factory;
 using Microsoft.IdentityModel.Tokens;
 using WbNotes.Application.Factory.ResponseErrorModel.Models;
 
@@ -16,7 +17,7 @@ public sealed class ExceptionErrorFactory : IExceptionErrorFactory
             UnauthorizedAccessException => new UnauthorizedAccessExceptionModel(),
             RegexMatchTimeoutException => new RegexMatchTimeoutExceptionModel(),
             BaseDomainException => new BaseDomainExceptionModel(),
-            SecurityTokenException => new SecurityTokenExceptionModel()
+            SecurityTokenException => new SecurityTokenExceptionModel(),
             _ => new GenericExceptionModel()
         };
     }
