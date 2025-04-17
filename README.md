@@ -22,16 +22,15 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 
 <b>LIMITAÇÕES</b>
 
-A biblioteca possui limitação de funcionamento para projetos em NET apenas.
-
-A biblioteca possui bibliotecas que será necessario pagar pelo seu uso no futuro, por exemplo a biblioteca Mediator.
+- A biblioteca possui limitação de funcionamento para projetos em NET apenas.
+- A biblioteca possui bibliotecas que será necessario pagar pelo seu uso no futuro, por exemplo a biblioteca Mediator.
 
 <b>CONSIDERAÇÕES FINAIS</b>
 
-Código simples e de facil de entendimento
-Código de simples manutenção, caso necessário
-Separação e organização de funcionalidades em pastas
-Framework utilizado possui longo tempo de suporte da equipe comunidade e responsável
+- Código simples e de facil de entendimento
+- Código de simples manutenção, caso necessário
+- Separação e organização de funcionalidades em pastas
+- Framework utilizado possui longo tempo de suporte da equipe comunidade e responsável
 
 <b>BIBLIOTECAS EXTERNAS INSERIDAS</b>
 - Azure
