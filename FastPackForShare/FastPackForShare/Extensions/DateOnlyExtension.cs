@@ -1,122 +1,121 @@
 ﻿using System.Globalization;
 
-namespace FastPackForShare.Extensions
+namespace FastPackForShare.Extensions;
+
+public sealed class DateOnlyExtension
 {
-    public sealed class DateOnlyExtension
+    #region [Aplicando padrão Singleton do Design Pattern]
+
+    private static readonly DateOnlyExtension Instance = new DateOnlyExtension();
+
+    public static DateOnlyExtension GetLoadDateOnlyService()
     {
-        #region [Aplicando padrão Singleton do Design Pattern]
+        return Instance;
+    }
 
-        private static readonly DateOnlyExtension Instance = new DateOnlyExtension();
+    #endregion
 
-        public static DateOnlyExtension GetLoadDateOnlyService()
+    public DateOnly GetDate() => DateOnly.FromDateTime(GetDateTimeNowFromBrazil());
+    public DateOnly SetDateOnly(int year, int month, int day) => new DateOnly(year, month, day);
+    public DateOnly ConvertDateTimeToDateOnly(DateTime dateTime) => DateOnly.FromDateTime(dateTime);
+    public int NumberDaysOfLife(DateOnly birthDay) => GetDate().DayNumber - birthDay.DayNumber;
+    public int GetAgeByDays(DateOnly birthDay) => Math.Abs(NumberDaysOfLife(birthDay) / 365);
+    public int GetAgeByYear(DateOnly birthDay) => Math.Abs(GetDate().Year - birthDay.Year);
+    public DateTime GetDateTimeFromString(string dateTime) => DateTime.ParseExact(dateTime, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+    public static DateTime FirstDayCurrentMonth()
+    {
+        return new DateTime(GetDateTimeNowFromBrazil().Year, GetDateTimeNowFromBrazil().Month, 1);
+    }
+
+    public DateTime GetNextUtilDay(DateTime dateTime)
+    {
+        // Caso tenha feriado nacional ou internacional, fazer uma consulta no BD pra isso...depois um IF para validar e somar 1 dia...
+        Dictionary<DayOfWeek, DateTime> dictionary = new Dictionary<DayOfWeek, DateTime>
         {
-            return Instance;
-        }
+            { DayOfWeek.Saturday, dateTime.AddDays(2) },
+            { DayOfWeek.Sunday, dateTime.AddDays(1) }
+        };
+        return dictionary.TryGetValue(dateTime.DayOfWeek, out var dtResult) ? dtResult : dateTime;
+    }
 
-        #endregion
+    public DateTime GetCurrentUtilDay()
+    {
+        return GetNextUtilDay(FirstDayCurrentMonth().AddDays(4));
+    }
 
-        public DateOnly GetDate() => DateOnly.FromDateTime(GetDateTimeNowFromBrazil());
-        public DateOnly SetDateOnly(int year, int month, int day) => new DateOnly(year, month, day);
-        public DateOnly ConvertDateTimeToDateOnly(DateTime dateTime) => DateOnly.FromDateTime(dateTime);
-        public int NumberDaysOfLife(DateOnly birthDay) => GetDate().DayNumber - birthDay.DayNumber;
-        public int GetAgeByDays(DateOnly birthDay) => Math.Abs(NumberDaysOfLife(birthDay) / 365);
-        public int GetAgeByYear(DateOnly birthDay) => Math.Abs(GetDate().Year - birthDay.Year);
-        public DateTime GetDateTimeFromString(string dateTime) => DateTime.ParseExact(dateTime, "yyyy-MM-dd", CultureInfo.InvariantCulture);
+    /// <summary>
+    /// Primeiro irei Obter a data e hora atual em GMT,
+    /// Definir o fuso horário de São Paulo,
+    /// Converte a data e hora atual para o fuso horário de São Paulo
+    /// </summary>
+    /// <returns></returns>
+    public static DateTime GetDateTimeNowFromBrazil()
+    {
+        TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+        DateTime dateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow.ToUniversalTime(), tz);
+        return dateTime;
+    }
 
-        public static DateTime FirstDayCurrentMonth()
+    public static string GetShortDate()
+    {
+        return GetDateTimeNowFromBrazil().ToShortDateString();
+    }
+
+    public static string GetShortTime()
+    {
+        return GetDateTimeNowFromBrazil().ToShortTimeString();
+    }
+
+    public static int GetLastDayOfMonth()
+    {
+        return DateTime.DaysInMonth(GetDateTimeNowFromBrazil().Year, GetDateTimeNowFromBrazil().Month);
+    }
+
+    public static bool IsValidUntilDay(DateTime date)
+    {
+        IEnumerable<DateTime> holidayDaysOfYear = Enumerable.Empty<DateTime>();
+        return date.DayOfWeek != DayOfWeek.Saturday &&
+               date.DayOfWeek != DayOfWeek.Sunday &&
+               !holidayDaysOfYear.Contains(date);
+    }
+
+    /// <summary>
+    /// Esse metodo faz que seja retornado o 5º dia util valido do Mês
+    /// </summary>
+    /// <param name="holidayDaysOfYear"> Lista com datas que são feriados nacionais, locais ou etc... </param>
+    /// <param name="untilDay"> Dia Util</param>
+    /// <returns></returns>
+    public static DateTime GetValidDayToPay(int untilDay = 5)
+    {
+        int untilDayCount = 0;
+        int lastDayOfMonth = GetLastDayOfMonth();
+        DateTime firstDayOfMonth = FirstDayCurrentMonth();
+
+        while (untilDayCount < untilDay)
         {
-            return new DateTime(GetDateTimeNowFromBrazil().Year, GetDateTimeNowFromBrazil().Month, 1);
-        }
-
-        public DateTime GetNextUtilDay(DateTime dateTime)
-        {
-            // Caso tenha feriado nacional ou internacional, fazer uma consulta no BD pra isso...depois um IF para validar e somar 1 dia...
-            Dictionary<DayOfWeek, DateTime> dictionary = new Dictionary<DayOfWeek, DateTime>
+            if (IsValidUntilDay(firstDayOfMonth))
             {
-                { DayOfWeek.Saturday, dateTime.AddDays(2) },
-                { DayOfWeek.Sunday, dateTime.AddDays(1) }
-            };
-            return dictionary.TryGetValue(dateTime.DayOfWeek, out var dtResult) ? dtResult : dateTime;
-        }
-
-        public DateTime GetCurrentUtilDay()
-        {
-            return GetNextUtilDay(FirstDayCurrentMonth().AddDays(4));
-        }
-
-        /// <summary>
-        /// Primeiro irei Obter a data e hora atual em GMT,
-        /// Definir o fuso horário de São Paulo,
-        /// Converte a data e hora atual para o fuso horário de São Paulo
-        /// </summary>
-        /// <returns></returns>
-        public static DateTime GetDateTimeNowFromBrazil()
-        {
-            TimeZoneInfo tz = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
-            DateTime dateTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow.ToUniversalTime(), tz);
-            return dateTime;
-        }
-
-        public static string GetShortDate()
-        {
-            return GetDateTimeNowFromBrazil().ToShortDateString();
-        }
-
-        public static string GetShortTime()
-        {
-            return GetDateTimeNowFromBrazil().ToShortTimeString();
-        }
-
-        public static int GetLastDayOfMonth()
-        {
-            return DateTime.DaysInMonth(GetDateTimeNowFromBrazil().Year, GetDateTimeNowFromBrazil().Month);
-        }
-
-        public static bool IsValidUntilDay(DateTime date)
-        {
-            IEnumerable<DateTime> holidayDaysOfYear = Enumerable.Empty<DateTime>();
-            return date.DayOfWeek != DayOfWeek.Saturday &&
-                   date.DayOfWeek != DayOfWeek.Sunday &&
-                   !holidayDaysOfYear.Contains(date);
-        }
-
-        /// <summary>
-        /// Esse metodo faz que seja retornado o 5º dia util valido do Mês
-        /// </summary>
-        /// <param name="holidayDaysOfYear"> Lista com datas que são feriados nacionais, locais ou etc... </param>
-        /// <param name="untilDay"> Dia Util</param>
-        /// <returns></returns>
-        public static DateTime GetValidDayToPay(int untilDay = 5)
-        {
-            int untilDayCount = 0;
-            int lastDayOfMonth = GetLastDayOfMonth();
-            DateTime firstDayOfMonth = FirstDayCurrentMonth();
-
-            while (untilDayCount < untilDay)
-            {
-                if (IsValidUntilDay(firstDayOfMonth))
-                {
-                    untilDayCount++;
-                }
-
-                firstDayOfMonth = firstDayOfMonth.AddDays(1);
-
-                if (firstDayOfMonth.Day > lastDayOfMonth)
-                {
-                    break;
-                }
+                untilDayCount++;
             }
 
-            return firstDayOfMonth.AddDays(-1);
+            firstDayOfMonth = firstDayOfMonth.AddDays(1);
+
+            if (firstDayOfMonth.Day > lastDayOfMonth)
+            {
+                break;
+            }
         }
 
-        public static bool IsAdultPerson(DateTime birthDate) => birthDate <= GetDateTimeNowFromBrazil().AddYears(-18);
+        return firstDayOfMonth.AddDays(-1);
+    }
 
-        public static DateTime ConverterStringParaDateTime(string date, string format) => DateTime.ParseExact(date, format, System.Globalization.CultureInfo.InvariantCulture);
+    public static bool IsAdultPerson(DateTime birthDate) => birthDate <= GetDateTimeNowFromBrazil().AddYears(-18);
 
-        public static string GetStringFromDateTime(DateTime dateTime)
-        {
-            return dateTime.ToString("yyyy-MM-dd");
-        }
+    public static DateTime ConverterStringParaDateTime(string date, string format) => DateTime.ParseExact(date, format, System.Globalization.CultureInfo.InvariantCulture);
+
+    public static string GetStringFromDateTime(DateTime dateTime)
+    {
+        return dateTime.ToString("yyyy-MM-dd");
     }
 }

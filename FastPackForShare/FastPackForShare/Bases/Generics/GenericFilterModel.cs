@@ -1,5 +1,5 @@
 ﻿namespace FastPackForShare.Bases.Generics;
 
-public abstract record GenericDTOModel
+public abstract record GenericFilterModel
 {
 }

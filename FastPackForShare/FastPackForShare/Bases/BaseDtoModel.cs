@@ -4,7 +4,7 @@ using FastPackForShare.Extensions;
 
 namespace FastPackForShare.Default;
 
-public abstract record BaseDTOModel : GenericDtoModel
+public abstract record BaseDTOModel : GenericDTOModel
 {
     private long? _id;
 

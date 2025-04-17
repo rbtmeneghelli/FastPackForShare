@@ -1,6 +1,4 @@
-﻿using System.Net;
-
-namespace FastPackForShare.Constants;
+﻿namespace FastPackForShare.Constants;
 
 public static class ConstantHttpStatusCode
 {

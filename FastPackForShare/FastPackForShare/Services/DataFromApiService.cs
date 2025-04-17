@@ -24,7 +24,7 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
         }
         catch (Exception ex)
         {
-            Notify($"{ConstantValue.REQUEST_API} {apiPath}");
+            Notify($"{ConstantMessageResponse.REQUEST_API} {apiPath}");
         }
 
         return null;
@@ -40,7 +40,7 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
         }
         catch (Exception ex)
         {
-            Notify($"{ConstantValue.REQUEST_API} {apiPath}");
+            Notify($"{ConstantMessageResponse.REQUEST_API} {apiPath}");
         }
 
         return null;
@@ -57,7 +57,7 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
         }
         catch (Exception ex)
         {
-            Notify($"{ConstantValue.REQUEST_API} {apiPath}");
+            Notify($"{ConstantMessageResponse.REQUEST_API} {apiPath}");
         }
 
         return false;
@@ -74,7 +74,7 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
         }
         catch (Exception ex)
         {
-            Notify($"{ConstantValue.REQUEST_API} {apiPath}");
+            Notify($"{ConstantMessageResponse.REQUEST_API} {apiPath}");
         }
 
         return false;

@@ -9,7 +9,7 @@ using FastPackForShare.Interfaces;
 namespace FastPackForShare.Bases;
 
 [ApiController]
-[EnableCors("WbNotesCORS")]
+[EnableCors("APICORS")]
 [Produces("application/json")]
 [ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
 [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]

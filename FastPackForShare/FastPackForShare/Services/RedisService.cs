@@ -1,5 +1,4 @@
-﻿
-using FastPackForShare.Interfaces;
+﻿using FastPackForShare.Interfaces;
 using FastPackForShare.Services.Bases;
 using Microsoft.Extensions.Caching.Distributed;
 

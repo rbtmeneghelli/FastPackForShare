@@ -1,6 +1,8 @@
-﻿namespace FastPackForShare.Default;
+﻿using FastPackForShare.Bases.Generics;
 
-public abstract record BaseFilterModel
+namespace FastPackForShare.Default;
+
+public abstract record BaseFilterModel : GenericFilterModel
 {
     public long? Id { get; set; }
     public bool? IsActive { get; set; }

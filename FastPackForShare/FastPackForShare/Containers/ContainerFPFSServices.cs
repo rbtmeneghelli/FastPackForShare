@@ -1,13 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using FastPackForShare.Services;
 using FastPackForShare.Services.Factory;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Interfaces.Factory;
 using Hangfire;
 using Serilog;
-using Serilog.Sinks.MSSqlServer;
 
 namespace FastPackForShare.Containers;
 

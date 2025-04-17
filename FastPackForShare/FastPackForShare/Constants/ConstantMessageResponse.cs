@@ -10,6 +10,14 @@ public static class ConstantMessageResponse
     public const string CREATE_CODE = "O Registro foi criado com sucesso";
     public const string FORBIDDEN_CODE = "Acesso negado! O token fornecido não possui privilegio para efetuar tal ação";
     public const string AUTHENTICATION_REQUIRED_CODE = "O token expirou. Por favor, faça uma nova autenticação para que seja gerado um novo token";
+    public const string RESEARCH_CODE = "O registro foi consultado com sucesso";
+    public const string UPDATE_CODE = "O registro foi atualizado com sucesso";
+    public const string DELETE_CODE = "O registro foi excluido com sucesso";
+    public const string STATUS_ACTIVE_CODE = "O registro foi ativado com sucesso";
+    public const string STATUS_INACTIVE_CODE = "O registro foi desativado com sucesso";
+    public const string SERVICE_RUNNING = "O serviço {0} está em execução";
+    public const string SERVICE_NOT_RUNNING = "O serviço {0} não está em execução";
+    public const string REQUEST_API = "Erro ao efetuar request da Api externa: {0}";
 
     public static string GetMessageResponse(int statusCode)
     {

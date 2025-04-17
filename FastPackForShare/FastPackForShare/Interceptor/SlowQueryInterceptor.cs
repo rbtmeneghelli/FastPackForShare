@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-using System.Data.Common;
+﻿using System.Data.Common;
 
 namespace FastPackForShare.Interceptor;
 
