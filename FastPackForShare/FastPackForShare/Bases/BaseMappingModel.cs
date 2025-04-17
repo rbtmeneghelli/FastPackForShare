@@ -2,7 +2,7 @@
 
 namespace FastPackForShare.Bases;
 
-public abstract class BaseMapping<TEntityModel> : IEntityTypeConfiguration<TEntityModel> where TEntityModel : BaseEntityModel, new()
+public abstract class BaseMappingModel<TEntityModel> : IEntityTypeConfiguration<TEntityModel> where TEntityModel : BaseEntityModel, new()
 {
     protected EntityTypeBuilder<TEntityModel> _builder;
 

@@ -13,6 +13,7 @@
     <PackageReference Include="EPPlus" Version="8.0.2" />
     <PackageReference Include="FluentValidation" Version="11.11.0" />
     <PackageReference Include="Hangfire" Version="1.8.18" />
+    <PackageReference Include="MediatR" Version="12.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="9.0.4" />
     <PackageReference Include="Microsoft.AspNetCore.DataProtection.Abstractions" Version="9.0.4" />

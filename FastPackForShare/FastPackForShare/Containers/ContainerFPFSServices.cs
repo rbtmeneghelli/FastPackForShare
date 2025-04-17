@@ -5,6 +5,7 @@ using FastPackForShare.Interfaces;
 using FastPackForShare.Interfaces.Factory;
 using Hangfire;
 using Serilog;
+using FastPackForShare.SimpleMediator.MicrosofExtensionsDI;
 
 namespace FastPackForShare.Containers;
 
@@ -98,8 +99,15 @@ public static class ContainerFastPackForShareServices
         services.AddMemoryCache();
     }
 
-    public static void RegisterCustomMediator(this IServiceCollection services)
+    public static void RegisterMediator(this IServiceCollection services, string assemblyName)
     {
+        var myAssembly = AppDomain.CurrentDomain.Load(assemblyName);
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(myAssembly));
+    }
 
+    public static void RegisterSimpleMediator(this IServiceCollection services, string assemblyName)
+    {
+        var myAssembly = AppDomain.CurrentDomain.Load(assemblyName);
+        services.AddSimpleMediatR(cfg => cfg.RegisterServicesFromAssemblies(myAssembly));
     }
 }

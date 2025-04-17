@@ -1,21 +1,23 @@
-﻿using FastPackForShare.Default;
+﻿using FastPackForShare.Bases.Generics;
+using FastPackForShare.Default;
 
 namespace FastPackForShare.Services.Bases;
 
 public static class BasePagedResultService
 {
-    public static BasePagedResultModel<T> GetPaged<T>(this IQueryable<T> query, int? paramPage, int? paramSize) where T : class
+    public static BasePagedResultModel<TGenericDTOModel> GetPaged<TGenericDTOModel>(this IQueryable<TGenericDTOModel> query, int? paramPage, int? paramSize) 
+    where TGenericDTOModel : GenericDTOModel
     {
         int page = paramPage.HasValue ? paramPage.Value : 1;
         int pageSize = paramSize.HasValue ? paramSize.Value : 10;
 
-        var result = new BasePagedResultModel<T>();
+        var result = new BasePagedResultModel<TGenericDTOModel>();
         result.Page = ++page;
         result.PageSize = pageSize;
         result.Results = query?.Count() > 0 ? query.Skip(GetPagination(result.Page, result.PageSize))
                                                    .Take(pageSize)
                                                    .AsEnumerable()
-                                                   : Enumerable.Empty<T>();
+                                                   : Enumerable.Empty<TGenericDTOModel>();
         result.TotalRecords = result.Results.Count();
         result.NextPage = result.PageSize * result.Page >= result.TotalRecords ? null : (int?)result.Page + 1;
         result.PageCount = result.TotalRecords > 0 ? (int)Math.Ceiling((double)result.TotalRecords / result.PageSize) : 1;

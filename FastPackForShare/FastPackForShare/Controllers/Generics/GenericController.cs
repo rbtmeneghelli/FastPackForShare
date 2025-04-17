@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Cors;
 using FastPackForShare.Interfaces;
 
-namespace FastPackForShare.Bases;
+namespace FastPackForShare.Controllers.Generics;
 
 [ApiController]
 [EnableCors("APICORS")]
@@ -52,13 +52,13 @@ public abstract class GenericController : ControllerBase
         }
     }
 
-    protected IActionResult CustomResponseModel(ModelStateDictionary modelState)
+    public IActionResult CustomResponseModel(ModelStateDictionary modelState)
     {
         NotificationModelIsInvalid(modelState);
         return CustomResponse(ConstantHttpStatusCode.BAD_REQUEST_CODE);
     }
 
-    protected IActionResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
+    public IActionResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
     {
         int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
 
@@ -85,7 +85,7 @@ public abstract class GenericController : ControllerBase
         }
     }
 
-    protected IActionResult CustomResponse(CustomResponseModel customResponseModel)
+    public IActionResult CustomResponse(CustomResponseModel customResponseModel)
     {
         int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
 

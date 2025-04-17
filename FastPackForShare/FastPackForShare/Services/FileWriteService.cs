@@ -14,10 +14,11 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using FastPackForShare.Services.Bases;
 using FastPackForShare.Bases;
+using FastPackForShare.Bases.Generics;
 
 namespace FastPackForShare.Services;
 
-public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFileWriteService<TBaseReportModel> where TBaseReportModel : BaseReportModel
+public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, IFileWriteService<TGenericReportModel> where TGenericReportModel : GenericReportModel
 {
     public FileWriteService(INotificationMessageService iNotificationMessageService) : base(iNotificationMessageService)
     {
@@ -79,7 +80,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         string[] letters = new[] { "A","B","C","D","E","F","G","H","I","J","K","L","M","N",
                                "O","P","Q","R","S","T","U","V","X","Y","Z" };
 
-        var listProperties = SharedExtension.GetDataProperties<TBaseReportModel>();
+        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
         foreach (var propertie in listProperties)
         {
             workSheet.Cells[1, countColumn].Value = propertie.DisplayName;
@@ -158,7 +159,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         IRow row = excelSheet.CreateRow(0);
         int indexColumn = 0;
 
-        var listProperties = SharedExtension.GetDataProperties<TBaseReportModel>();
+        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
         foreach (var propertie in listProperties)
         {
             row.CreateCell(indexColumn).SetCellValue(propertie.DisplayName);
@@ -202,7 +203,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
 
     #region Methods Write CSV
 
-    private IEnumerable<string> GetLinesToFillCSV(PropertyInfo[] arrPropertyInfo, string headerOriginalProperty, IEnumerable<TBaseReportModel> list)
+    private IEnumerable<string> GetLinesToFillCSV(PropertyInfo[] arrPropertyInfo, string headerOriginalProperty, IEnumerable<TGenericReportModel> list)
     {
         var culture = CultureInfo.GetCultureInfo("pt-BR");
         List<string> lines = new List<string>();
@@ -240,7 +241,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
 
     #endregion
 
-    public async Task<MemoryStream> CreateExcelFileEPPLUS(IEnumerable<TBaseReportModel> list, string excelName)
+    public async Task<MemoryStream> CreateExcelFileEPPLUS(IEnumerable<TGenericReportModel> list, string excelName)
     {
         ExcelPackage excelPackage = new();
         string path = Path.Combine(Directory.GetCurrentDirectory(), excelName);
@@ -261,7 +262,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         return await SharedExtension.GetMemoryStreamByFile(path);
     }
 
-    public async Task<MemoryStream> CreateExcelFileNPOI(IEnumerable<TBaseReportModel> list, string excelName)
+    public async Task<MemoryStream> CreateExcelFileNPOI(IEnumerable<TGenericReportModel> list, string excelName)
     {
         string path = Path.Combine(Directory.GetCurrentDirectory(), excelName);
         var dataTable = SharedExtension.ConvertToDataTable(list);
@@ -288,9 +289,9 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         }
     }
 
-    public async Task<MemoryStream> CreateCsvFile(IEnumerable<TBaseReportModel> list)
+    public async Task<MemoryStream> CreateCsvFile(IEnumerable<TGenericReportModel> list)
     {
-        Type item = typeof(TBaseReportModel);
+        Type item = typeof(TGenericReportModel);
         var arrPropertyInfo = item.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         arrPropertyInfo = arrPropertyInfo.OrderBy(p =>

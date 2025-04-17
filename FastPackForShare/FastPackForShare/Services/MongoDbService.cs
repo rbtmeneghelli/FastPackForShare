@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using FastPackForShare.Bases.Generics;
 using FastPackForShare.Default;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Services.Bases;
@@ -6,7 +7,7 @@ using MongoDB.Driver;
 
 namespace FastPackForShare.Services;
 
-public sealed class MongoDbService<TBaseEntityModel> : BaseHandlerService, IMongoDbService<TBaseEntityModel> where TBaseEntityModel : BaseEntityModel
+public sealed class MongoDbService<TGenericEntityModel> : BaseHandlerService, IMongoDbService<TGenericEntityModel> where TGenericEntityModel : GenericEntityModel
 {
     private string _connectionString;
     private string _databaseName;
@@ -21,45 +22,45 @@ public sealed class MongoDbService<TBaseEntityModel> : BaseHandlerService, IMong
         _databaseName = databaseName;
     }
 
-    private IMongoCollection<TBaseEntityModel> CreateMongoDbConnection()
+    private IMongoCollection<TGenericEntityModel> CreateMongoDbConnection()
     {
         var client = new MongoClient(_connectionString);
         var database = client.GetDatabase("testdb");
-        var collection = database.GetCollection<TBaseEntityModel>(nameof(TBaseEntityModel));
+        var collection = database.GetCollection<TGenericEntityModel>(nameof(TGenericEntityModel));
         return collection;
     }
 
-    private FilterDefinition<TBaseEntityModel> GenericFilter(string propertyName, object value)
+    private FilterDefinition<TGenericEntityModel> GenericFilter(string propertyName, object value)
     {
-        var parameter = Expression.Parameter(typeof(TBaseEntityModel), "p");
+        var parameter = Expression.Parameter(typeof(TGenericEntityModel), "p");
         var property = Expression.Property(parameter, propertyName);
         var constant = Expression.Constant(value);
         var equality = Expression.Equal(property, constant);
-        var lambda = Expression.Lambda<Func<TBaseEntityModel, bool>>(equality, parameter);
-        var filter = Builders<TBaseEntityModel>.Filter.Where(lambda);
+        var lambda = Expression.Lambda<Func<TGenericEntityModel, bool>>(equality, parameter);
+        var filter = Builders<TGenericEntityModel>.Filter.Where(lambda);
         return filter;
     }
 
-    private UpdateDefinition<TBaseEntityModel> GenericUpdateFilter(string propertyName, object value)
+    private UpdateDefinition<TGenericEntityModel> GenericUpdateFilter(string propertyName, object value)
     {
-        var parameter = Expression.Parameter(typeof(TBaseEntityModel), "p");
+        var parameter = Expression.Parameter(typeof(TGenericEntityModel), "p");
         var property = Expression.Property(parameter, propertyName);
         var constant = Expression.Constant(value);
         var equality = Expression.Equal(property, constant);
-        var lambda = Expression.Lambda<Func<TBaseEntityModel, bool>>(equality, parameter);
-        var filter = Builders<TBaseEntityModel>.Update.Set(propertyName, value);
+        var lambda = Expression.Lambda<Func<TGenericEntityModel, bool>>(equality, parameter);
+        var filter = Builders<TGenericEntityModel>.Update.Set(propertyName, value);
         return filter;
     }
 
-    public async Task CreateItem(TBaseEntityModel entity)
+    public async Task CreateItem(TGenericEntityModel entity)
     {
-        IMongoCollection<TBaseEntityModel> mongoCollection = CreateMongoDbConnection();
+        IMongoCollection<TGenericEntityModel> mongoCollection = CreateMongoDbConnection();
         await mongoCollection.InsertOneAsync(entity);
     }
 
     public async Task UpdateItem(string propertyNameToFind, object valueToFind, string propertyNameToChange, object valueToChange)
     {
-        IMongoCollection<TBaseEntityModel> mongoCollection = CreateMongoDbConnection();
+        IMongoCollection<TGenericEntityModel> mongoCollection = CreateMongoDbConnection();
         var filter = GenericFilter(propertyNameToFind, valueToFind);
         var existRecord = await mongoCollection.Find(filter).AnyAsync();
         if (existRecord)
@@ -71,7 +72,7 @@ public sealed class MongoDbService<TBaseEntityModel> : BaseHandlerService, IMong
 
     public async Task<bool> ResearchItem(string propertyNameToFind, object valueToFind)
     {
-        IMongoCollection<TBaseEntityModel> mongoCollection = CreateMongoDbConnection();
+        IMongoCollection<TGenericEntityModel> mongoCollection = CreateMongoDbConnection();
         var filter = GenericFilter(propertyNameToFind, valueToFind);
         var existRecord = await mongoCollection.Find(filter).AnyAsync();
         return existRecord;
@@ -79,7 +80,7 @@ public sealed class MongoDbService<TBaseEntityModel> : BaseHandlerService, IMong
 
     public async Task DeleteItem(string propertyNameToFind, object valueToFind)
     {
-        IMongoCollection<TBaseEntityModel> mongoCollection = CreateMongoDbConnection();
+        IMongoCollection<TGenericEntityModel> mongoCollection = CreateMongoDbConnection();
         var filter = GenericFilter(propertyNameToFind, valueToFind);
         var existRecord = await mongoCollection.Find(filter).AnyAsync();
         if (existRecord)

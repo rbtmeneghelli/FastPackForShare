@@ -1,4 +1,5 @@
-﻿using FastPackForShare.Default;
+﻿using FastPackForShare.Bases.Generics;
+using FastPackForShare.Default;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
 using FluentValidation;
@@ -28,7 +29,7 @@ public abstract class BaseHandlerService
         _iNotificationMessageService.Handle(new NotificationMessageModel(message));
     }
 
-    protected bool ExecuteValidation<TV, TE>(TV validacao, TE entidade) where TV : AbstractValidator<TE> where TE : BaseDTOModel
+    protected bool ExecuteValidation<TV, TE>(TV validacao, TE entidade) where TV : AbstractValidator<TE> where TE : GenericDTOModel
     {
         var validator = validacao.Validate(entidade);
 
