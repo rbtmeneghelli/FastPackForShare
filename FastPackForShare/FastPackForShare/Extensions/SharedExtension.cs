@@ -13,6 +13,8 @@ using FastPackForShare.Models;
 using Microsoft.AspNetCore.Http;
 using FastPackForShare.Enums;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace FastPackForShare.Extensions;
 
@@ -466,8 +468,8 @@ public sealed class SharedExtension
 
     public DataTable ConvertDynamicListToDataTable(IEnumerable<dynamic> list)
     {
-        var json = JsonConvert.SerializeObject(list);
-        DataTable dt = (DataTable)JsonConvert.DeserializeObject(json, (typeof(DataTable)));
+        var json = JsonSerializer.Serialize(list);
+        DataTable dt = (DataTable)JsonSerializer.Deserialize(json, (typeof(DataTable)));
         return dt;
     }
 

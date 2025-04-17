@@ -6,8 +6,6 @@ using NPOI.HSSF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
-using System.ComponentModel;
-using System.Globalization;
 using FastPackForShare.Services.Bases;
 using FastPackForShare.Bases;
 
@@ -17,7 +15,6 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
 {
     public FileReadService(INotificationMessageService iNotificationMessageService) : base(iNotificationMessageService)
     {
-        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
     }
 
     private async Task<MemoryStream> GetMemoryStreamByFile(string path)
@@ -41,7 +38,7 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
 
     private IEnumerable<TBaseReportModel> ReadExcelDataEPPLUS(Stream excelFileStream)
     {
-        List<TModel> list = new List<TModel>();
+        List<TBaseReportModel> list = new List<TBaseReportModel>();
         var arquivoExcel = new ExcelPackage(excelFileStream);
         ExcelWorksheet worksheet = arquivoExcel.Workbook.Worksheets.FirstOrDefault();
         int rows = worksheet.Dimension.Rows;
@@ -123,7 +120,7 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
     {
         using var reader = new StreamReader(csvFilePath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-        foreach (var registro in csv.GetRecords<TModel>())
+        foreach (var registro in csv.GetRecords<TBaseReportModel>())
             yield return registro;
     }
 
@@ -147,7 +144,7 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
             return ReadExcelDataNPOI(sheet);
         }
 
-        return Enumerable.Empty<TModel>();
+        return Enumerable.Empty<TBaseReportModel>();
     }
 
     public async Task<IEnumerable<TBaseReportModel>> ReadExcelDataFromUploadEPPLUS(MemoryStream memoryStreamFile)
@@ -166,19 +163,19 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
             return ReadExcelDataEPPLUS(stream);
         }
 
-        return Enumerable.Empty<TModel>();
+        return Enumerable.Empty<TBaseReportModel>();
     }
 
     public async Task<IEnumerable<TBaseReportModel>> ReadCsvData(string csvFilePath)
     {
-        var result = ParseCsv<TModel>(csvFilePath);
+        var result = ParseCsv<TBaseReportModel>(csvFilePath);
         await Task.CompletedTask;
         return result;
     }
 
     public async Task<IEnumerable<TBaseReportModel>> ReadCsvDataFromIFormFile(MemoryStream memoryStreamFile)
     {
-        var list = Enumerable.Empty<TModel>();
+        var list = Enumerable.Empty<TBaseReportModel>();
 
         string base64 = Convert.ToBase64String(memoryStreamFile.ToArray());
 
@@ -188,7 +185,7 @@ public sealed class FileReadService<TBaseReportModel> : BaseHandlerService, IFil
             {
                 using (var csvReader = new CsvReader(reader, new CultureInfo("pt-BR")))
                 {
-                    list = csvReader.GetRecords<TModel>();
+                    list = csvReader.GetRecords<TBaseReportModel>();
                 }
             }
         }

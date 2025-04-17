@@ -1,17 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.EntityFrameworkCore.Diagnostics;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Runtime.CompilerServices;
-using Microsoft.IdentityModel.Tokens;
-using System.Data.Entity;
-using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 using FastPackForShare.Services;
-using Microsoft.Extensions.Configuration;
 using FastPackForShare.Services.Factory;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Interfaces.Factory;
-
+using Hangfire;
+using Serilog;
+using Serilog.Sinks.MSSqlServer;
 
 namespace FastPackForShare.Containers;
 
@@ -66,17 +62,47 @@ public static class ContainerFastPackForShareServices
         });
     }
 
-    //public static void RegisterHttpClient(this IServiceCollection services)
-    //{
-    //    services.AddHttpClient("Signed")
-    //    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
-    //    {
-    //        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
-    //    });
-    //}
+    public static void RegisterHttpClient(this IServiceCollection services)
+    {
+        services.AddHttpClient("Signed")
+        .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        });
+    }
 
-    //public static IServiceCollection RegisterCustomMediator(this IServiceCollection services)
-    //{
+    public static void RegisterHangFire(this IServiceCollection services, string connectionString)
+    {
+        services.AddHangfire(x => x.UseSqlServerStorage(connectionString));
+        services.AddHangfireServer();
+    }
 
-    //}
+    public static void RegisterSeriLog(this IServiceCollection services, string serilog)
+    {
+        Serilog.Log.Logger = new LoggerConfiguration()
+        .Enrich.WithProperty("Project", "WebNotesAPI")
+        .Enrich.WithProperty("Environment", "Local")
+        .WriteTo.Seq(serilog).CreateLogger();
+        services.AddSingleton(Serilog.Log.Logger);
+    }
+
+    public static void RegisterHttpContextAccessor(this IServiceCollection services)
+    {
+        services.AddHttpContextAccessor();
+    }
+
+    public static void RegisterProblemDetails(this IServiceCollection services)
+    {
+        services.AddProblemDetails();
+    }
+
+    public static void RegisterMemoryCache(this IServiceCollection services)
+    {
+        services.AddMemoryCache();
+    }
+
+    public static void RegisterCustomMediator(this IServiceCollection services)
+    {
+
+    }
 }

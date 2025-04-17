@@ -1,4 +1,6 @@
-﻿namespace FastPackForShare.Cryptography;
+﻿using FastPackForShare.Extensions;
+
+namespace FastPackForShare.Cryptography;
 
 public static class CryptographyDesManager
 {

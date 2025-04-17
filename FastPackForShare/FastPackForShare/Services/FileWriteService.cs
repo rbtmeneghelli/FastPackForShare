@@ -79,7 +79,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         string[] letters = new[] { "A","B","C","D","E","F","G","H","I","J","K","L","M","N",
                                "O","P","Q","R","S","T","U","V","X","Y","Z" };
 
-        var listProperties = SharedExtension.GetDataProperties<TModel>();
+        var listProperties = SharedExtension.GetDataProperties<TBaseReportModel>();
         foreach (var propertie in listProperties)
         {
             workSheet.Cells[1, countColumn].Value = propertie.DisplayName;
@@ -158,7 +158,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
         IRow row = excelSheet.CreateRow(0);
         int indexColumn = 0;
 
-        var listProperties = SharedExtension.GetDataProperties<TModel>();
+        var listProperties = SharedExtension.GetDataProperties<TBaseReportModel>();
         foreach (var propertie in listProperties)
         {
             row.CreateCell(indexColumn).SetCellValue(propertie.DisplayName);
@@ -202,7 +202,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
 
     #region Methods Write CSV
 
-    private IEnumerable<string> GetLinesToFillCSV(PropertyInfo[] arrPropertyInfo, string headerOriginalProperty, IEnumerable<TModel> list)
+    private IEnumerable<string> GetLinesToFillCSV(PropertyInfo[] arrPropertyInfo, string headerOriginalProperty, IEnumerable<TBaseReportModel> list)
     {
         var culture = CultureInfo.GetCultureInfo("pt-BR");
         List<string> lines = new List<string>();
@@ -290,7 +290,7 @@ public sealed class FileWriteService<TBaseReportModel> : BaseHandlerService, IFi
 
     public async Task<MemoryStream> CreateCsvFile(IEnumerable<TBaseReportModel> list)
     {
-        Type item = typeof(TModel);
+        Type item = typeof(TBaseReportModel);
         var arrPropertyInfo = item.GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
         arrPropertyInfo = arrPropertyInfo.OrderBy(p =>
