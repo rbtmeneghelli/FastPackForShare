@@ -11,20 +11,18 @@ namespace FastPackForShare.Bases
     [ApiController]
     [EnableCors("WbNotesCORS")]
     [Produces("application/json")]
-    [ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomProduceResponseType<object>))]
-    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseType<object>))]
-    [ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomProduceResponseType<object>))]
-    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseType<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
+    [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
     public abstract class GenericController : ControllerBase
     {
-        protected readonly IMediator _iMediator;
         protected readonly INotificationMessageService _notificationService;
 
         protected int HttpCodeStatus { get; set; }
 
-        protected GenericController(IMediator iMediator, INotificationMessageService notificationService)
+        protected GenericController(INotificationMessageService notificationService)
         {
-            _iMediator = iMediator;
             HttpCodeStatus = ConstantHttpStatusCode.BAD_REQUEST_CODE;
             _notificationService = notificationService;
         }

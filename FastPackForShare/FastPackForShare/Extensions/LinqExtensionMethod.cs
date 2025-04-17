@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FastPackForShare.Models;
 
 namespace FastPackForShare.Extensions;
 
@@ -266,7 +262,7 @@ public sealed class LinqExtensionMethod
 
     public IEnumerable<DropDownListModel> GetDistinctBy(IEnumerable<DropDownListModel> source)
     {
-        return source.DistinctBy(p => p.Descricao, StringComparer.OrdinalIgnoreCase).ToList();
+        return source.DistinctBy(p => p.Description, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     #endregion
@@ -275,7 +271,7 @@ public sealed class LinqExtensionMethod
 
     public IEnumerable<DropDownListModel> GetExceptBy(IEnumerable<DropDownListModel> source, IEnumerable<string> itens)
     {
-        return source.ExceptBy(itens, p => p.Descricao, StringComparer.OrdinalIgnoreCase).ToList();
+        return source.ExceptBy(itens, p => p.Description, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     #endregion
@@ -284,7 +280,7 @@ public sealed class LinqExtensionMethod
 
     public IEnumerable<DropDownListModel> GetIntersectBy(IEnumerable<DropDownListModel> source, IEnumerable<DropDownListModel> itens)
     {
-        return source.IntersectBy(itens.Select(x => x.Descricao), p => p.Descricao, StringComparer.OrdinalIgnoreCase).ToList();
+        return source.IntersectBy(itens.Select(x => x.Description), p => p.Description, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     #endregion
@@ -293,7 +289,7 @@ public sealed class LinqExtensionMethod
 
     public IEnumerable<DropDownListModel> GetUnionBy(IEnumerable<DropDownListModel> source, IEnumerable<DropDownListModel> itens)
     {
-        return source.UnionBy(itens, p => p.Descricao, StringComparer.OrdinalIgnoreCase).ToList();
+        return source.UnionBy(itens, p => p.Description, StringComparer.OrdinalIgnoreCase).ToList();
     }
 
     #endregion
@@ -310,7 +306,7 @@ public sealed class LinqExtensionMethod
 
     public Dictionary<long, string> ConvertListToDictionary(IEnumerable<DropDownListModel> list)
     {
-        return list.ToDictionary(item => item.Id, item => item.Descricao);
+        return list.ToDictionary(item => item.Id, item => item.Description);
     }
 
     public T GetFirstItemFromList<T>(IEnumerable<T> list, Func<T, bool> predicate) where T : class

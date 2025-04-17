@@ -4,7 +4,7 @@ using FastPackForShare.Extensions;
 
 namespace FastPackForShare.Default;
 
-public abstract record BaseDtoModel : GenericDtoModel
+public abstract record BaseDTOModel : GenericDtoModel
 {
     private long? _id;
 
@@ -17,16 +17,16 @@ public abstract record BaseDtoModel : GenericDtoModel
     public string GetStatus() => IsActive.HasValue ? 
                                 (IsActive.Value ? EnumStatus.Active.GetDisplayShortName() : 
                                  EnumStatus.Inactive.GetDisplayShortName()) : EnumStatus.Inactive.GetDisplayShortName();
-    public BaseDtoModel()
+    public BaseDTOModel()
     {
     }
 
-    public virtual BaseDtoModel ChangeStatusToInactive<T>(BaseDtoModel obj)
+    public virtual BaseDTOModel ChangeStatusToInactive<T>(BaseDTOModel obj)
     {
         return obj with { IsActive = false };
     }
 
-    public virtual BaseDtoModel ChangeStatusToActive<T>(BaseDtoModel obj)
+    public virtual BaseDTOModel ChangeStatusToActive<T>(BaseDTOModel obj)
     {
         return obj with { IsActive = true };
     }

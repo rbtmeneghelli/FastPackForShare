@@ -21,5 +21,8 @@ public enum EnumFile : byte
     Jpeg = 6,
 
     [Display(Name = "Png")]
-    Png = 7
+    Png = 7,
+
+    [Display(Name = "Png")]
+    Zip = 8,
 }

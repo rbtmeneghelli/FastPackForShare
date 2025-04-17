@@ -35,19 +35,18 @@ public static class ContainerFastPackForShareServices
     {
         services
         .AddScoped(typeof(IMemoryCacheService<>), typeof(MemoryCacheService<>))
+        .AddScoped(typeof(IMongoDbService<>), typeof(MongoDbService<>))
+        .AddScoped(typeof(IFileReadService<>), typeof(FileReadService<>))
+        .AddScoped(typeof(IFileWriteService<>), typeof(FileWriteService<>))
+        .AddScoped(typeof(IDataFromApiService<>), typeof(DataFromApiService<>))
         .AddTransient<INotificationMessageService, NotificationMessageService>()
         .AddScoped<ITokenService, TokenService>()
         .AddTransient<IDataProtectionService, DataProtectionService>()
         .AddTransient<IExceptionErrorFactory, ExceptionErrorFactory>()
         .AddScoped<IUserLoggedService, UserLoggedService>()
         .AddTransient<ISeriLogService, SeriLogService>()
-        .AddScoped<IRedisService, RedisService>();
-
-          //          .AddScoped(typeof(IDataFromApiService<>), typeof(DataFromApiService<>))
-          //
-
-
-        //.AddScoped(typeof(IFileService<>), typeof(FileService<>));
+        .AddScoped<IRedisService, RedisService>()
+        .AddScoped<IQRCodeService, QRCodeService>();
     }
 
     public static void RegisterCors(this IServiceCollection services, string[] corsSettings)

@@ -28,7 +28,7 @@ public abstract class BaseHandlerService
         _iNotificationMessageService.Handle(new NotificationMessageModel(message));
     }
 
-    protected bool ExecuteValidation<TV, TE>(TV validacao, TE entidade) where TV : AbstractValidator<TE> where TE : BaseDtoModel
+    protected bool ExecuteValidation<TV, TE>(TV validacao, TE entidade) where TV : AbstractValidator<TE> where TE : BaseDTOModel
     {
         var validator = validacao.Validate(entidade);
 
