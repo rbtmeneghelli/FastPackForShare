@@ -1,6 +1,6 @@
 ﻿using System.Data.Common;
 
-namespace FastPackForShare.Interceptor;
+namespace FastPackForShare.Interceptors;
 
 public class SlowQueryInterceptor : DbCommandInterceptor
 {
