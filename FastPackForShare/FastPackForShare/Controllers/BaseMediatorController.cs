@@ -6,7 +6,7 @@ namespace FastPackForShare.Controllers;
 
 public abstract class BaseMediatorController : GenericController
 {
-    protected readonly IMediator _iMediator;
+    public readonly IMediator _iMediator;
 
     public BaseMediatorController(IMediator iMediator, INotificationMessageService notificationMessageService) :
     base(notificationMessageService)

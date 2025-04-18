@@ -2,6 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+	<Version>1.0.0</Version>
+	<Authors>Roberto Meneghelli</Authors>
+	<Company>Romar Software</Company>
+	<PackageId>FastPackForShare</PackageId>
+    <Description>This package will help developers during development of other projects</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<RepositoryUrl>https://github.com/rbtmeneghelli</RepositoryUrl>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
   </PropertyGroup>

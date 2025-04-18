@@ -3,6 +3,6 @@ using FluentValidation;
 
 namespace FastPackForShare.Bases;
 
-public sealed class BaseValidatorModel<TBaseDtoModel> : AbstractValidator<TBaseDtoModel> where TBaseDtoModel : BaseDTOModel
+public class BaseValidatorModel<TBaseDtoModel> : AbstractValidator<TBaseDtoModel> where TBaseDtoModel : BaseDTOModel
 {
 }

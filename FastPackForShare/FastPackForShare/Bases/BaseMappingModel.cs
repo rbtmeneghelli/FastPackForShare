@@ -17,4 +17,14 @@ public abstract class BaseMappingModel<TEntityModel> : IEntityTypeConfiguration<
         _builder.Property(x => x.UpdatedAt).HasColumnOrder(2);
         _builder.Property(x => x.IsActive).IsRequired().HasDefaultValue(true).HasColumnOrder(3);
     }
+
+    public virtual void ConfigureBaseWithHistory(string tableName)
+    {
+        _builder.ToTable(tableName, e => e.IsTemporal(t =>
+        {
+            t.HasPeriodStart("InicioValidade");
+            t.HasPeriodEnd("TerminoValidade");
+            t.UseHistoryTable($"{tableName}History");
+        }));
+    }
 }
