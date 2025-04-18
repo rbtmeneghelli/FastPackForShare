@@ -23,7 +23,7 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 <b>LIMITAÇÕES</b>
 
 - A biblioteca possui limitação de funcionamento para projetos em NET apenas.
-- A biblioteca possui bibliotecas que será necessario pagar pelo seu uso no futuro, por exemplo a biblioteca Mediator.
+- A biblioteca possui bibliotecas que será necessario pagar pelo seu uso no futuro, por exemplo a biblioteca (Mediator, AutoMapper).
 
 <b>CONSIDERAÇÕES FINAIS</b>
 
@@ -33,6 +33,7 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 - Framework utilizado possui longo tempo de suporte da equipe comunidade e responsável
 
 <b>BIBLIOTECAS EXTERNAS INSERIDAS</b>
+- AutoMapper
 - Azure
 - CsvHelper
 - EntityFramework e EntityFrameworkCore
@@ -40,6 +41,7 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 - FluentValidation
 - HangFire
 - MediatR
+- StackExchangeRedis
 - MongoDb
 - NPOI
 - Serilog
