@@ -1,9 +1,5 @@
 # FastPackForShare
 
-Desenvolvedor Responsavel: Roberto Meneghelli
-
-Criado em: 16/04/2025
-
 <b>CONTEXTO</b>
 
 Esse pacote foi desenvolvido com o intuito de facilitar e armazenar funcionalides constantes no dia a dia de um desenvolvedor C#, onde é possivel fazer a importação dessa biblioteca pela plataforma do Nuget e integra-lo a projetos a partir da versão do NET 8.0 ou superior.
