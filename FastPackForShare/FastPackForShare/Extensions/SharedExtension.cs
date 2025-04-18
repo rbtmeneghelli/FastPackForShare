@@ -1526,4 +1526,11 @@ public sealed class SharedExtension
 
         return memoryStream;
     }
+
+    public static async Task<byte[]> SetFileToByteArray(IFormFile formfile)
+    {
+        MemoryStream ms = new MemoryStream(new byte[formfile.Length]);
+        await formfile.CopyToAsync(ms);
+        return ms.ToArray();
+    }
 }

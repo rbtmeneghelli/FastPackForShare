@@ -11,9 +11,9 @@ public static class CryptographyAesManager
 
         using (Aes aesAlg = Aes.Create())
         {
-            byte[] chave = aesAlg.Key;
+            byte[] key = aesAlg.Key;
             byte[] iv = aesAlg.IV;
-            decryptText = DecryptStringAES(cryptText, chave, iv);
+            decryptText = DecryptStringAES(cryptText, key, iv);
         }
 
         return decryptText;
@@ -83,15 +83,15 @@ public static class CryptographyAesManager
         }
     }
 
-    private static string ApplyEncrypt(string text)
+    public static string ApplyEncrypt(string text)
     {
         string cryptText = string.Empty;
 
         using (Aes aesAlg = Aes.Create())
         {
-            byte[] chave = aesAlg.Key;
+            byte[] key = aesAlg.Key;
             byte[] iv = aesAlg.IV;
-            byte[] arrCryptText = EncryptStringAES(text, chave, iv);
+            byte[] arrCryptText = EncryptStringAES(text, key, iv);
             cryptText = Convert.ToBase64String(arrCryptText);
         }
 

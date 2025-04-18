@@ -25,7 +25,7 @@ public sealed class MongoDbService<TGenericEntityModel> : BaseHandlerService, IM
     private IMongoCollection<TGenericEntityModel> CreateMongoDbConnection()
     {
         var client = new MongoClient(_connectionString);
-        var database = client.GetDatabase("testdb");
+        var database = client.GetDatabase(_databaseName);
         var collection = database.GetCollection<TGenericEntityModel>(nameof(TGenericEntityModel));
         return collection;
     }
