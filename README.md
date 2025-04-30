@@ -42,6 +42,7 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 - NPOI
 - Serilog
 - SkiaSharp
+- Scrutor
 
 <b>RESULTADO FINAL</b>
 ![image](https://github.com/user-attachments/assets/9d2f9940-2ec9-4ebb-91a8-fae58a19f801)
