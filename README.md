@@ -8,7 +8,7 @@ To development this project was choosed following tecnologies:
 - NET 8.0
 - Programming Language C# 
 - Repository Code >> GitHub
-- Project Layers >> Bases, Constants, Containers, Controllers, Cryptographys, Enums, Exceptions, Interceptors, Interfaces, Models, Services, SimpleMediator
+- Project Layers >> Bases, Constants, Containers, Controllers, Cryptographys, Enums, Exceptions, Interceptors, Interfaces, Models, Services, SimpleMediator, DispatcherMediator
 - Framework >> EF CORE
 
 <b>DECISION TO DEVELOPMENT</b>
