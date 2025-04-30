@@ -1,34 +1,34 @@
 # FastPackForShare
 
-<b>CONTEXTO</b>
+<b>CONTEXT</b>
 
-Esse pacote foi desenvolvido com o intuito de facilitar e armazenar funcionalides constantes no dia a dia de um desenvolvedor C#, onde é possivel fazer a importação dessa biblioteca pela plataforma do Nuget e integra-lo a projetos a partir da versão do NET 8.0 ou superior.
-As funcionalidades dessa biblioteca se encontram separadas em pastas
+This project was development to speed up the creation of new NET projects and avoid repeat code, following SOLID and design patterns rules.
 
-Para desenvolvimento desse software foi escolhido as seguintes tecnologias:
-- Linguagem de programação C# com NET 8.0
-- Banco de dados >> SQL Server 2018
-- Repositorio de Codigo >> GitHub
-- Camadas do Projeto >> Bases, Constants, Containers, Controllers, Cryptographys, Enums, Exceptions, Interceptors, Interfaces, Models, Services, SimpleMediator
-- Framework >> Entity Framework CORE
+To development this project was choosed following tecnologies:
+- NET 8.0
+- Programming Language C# 
+- Repository Code >> GitHub
+- Project Layers >> Bases, Constants, Containers, Controllers, Cryptographys, Enums, Exceptions, Interceptors, Interfaces, Models, Services, SimpleMediator
+- Framework >> EF CORE
 
-<b>MOTIVO DA DECISÃO</b>
+<b>DECISION TO DEVELOPMENT</b>
 
-O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcionalidades repetitivas para que sejam usadas de forma recorrente em futuros projetos.
+This project has the mission to avoid repeat and share code of library packages are used in the most NET projects.
 
-<b>LIMITAÇÕES</b>
+<b>LIMITS</b>
 
-- A biblioteca possui limitação de funcionamento para projetos em NET apenas.
-- A biblioteca possui bibliotecas que será necessario pagar pelo seu uso no futuro, por exemplo a biblioteca (Mediator, AutoMapper).
+- This library was development for NET projects only, is not possible to use with other tecnologies like JAVA, Phyton e etc...
+- This library has external packages will be payed in the future like (Mediator, AutoMapper).
 
-<b>CONSIDERAÇÕES FINAIS</b>
+<b>FINAL CONSIDERATIONS</b>
 
-- Código simples e de facil de entendimento
-- Código de simples manutenção, caso necessário
-- Separação e organização de funcionalidades em pastas
-- Framework utilizado possui longo tempo de suporte da equipe comunidade e responsável
+- Simple code,
+- Easy knowledge
+- Easy maintance (if necessary)
+- Longtime support with NET Team and Community
+- This project was development with NET 8.0, so can be integrated with other projects on NET 8.0 or higher
 
-<b>BIBLIOTECAS EXTERNAS INSERIDAS</b>
+<b>EXTERNAL LIBRARIES INCLUDED</b>
 - AutoMapper
 - Azure
 - CsvHelper
@@ -44,5 +44,5 @@ O desenvolvimento dessa biblioteca foi a possibilidade de compartilhar funcional
 - SkiaSharp
 - Scrutor
 
-<b>RESULTADO FINAL</b>
+<b>FINAL RESULT</b>
 ![image](https://github.com/user-attachments/assets/9d2f9940-2ec9-4ebb-91a8-fae58a19f801)
