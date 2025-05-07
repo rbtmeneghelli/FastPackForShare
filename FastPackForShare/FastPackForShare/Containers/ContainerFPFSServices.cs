@@ -14,6 +14,11 @@ using Serilog.Filters;
 using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
 using System.Data;
+using FluentValidation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
+using FastPackForShare.Models;
 
 namespace FastPackForShare.Containers;
 
@@ -52,15 +57,15 @@ public static class ContainerFastPackForShareServices
         .AddTransient<IMapperService, MapperService>();
     }
 
-    public static void RegisterCors(this IServiceCollection services, string[] corsSettings)
+    public static void RegisterCors(this IServiceCollection services, string[] corsSettings, string corsPolicyName)
     {
         services.AddCors(options =>
         {
-            options.AddPolicy("APICORS", builder =>
+            options.AddPolicy(corsPolicyName, builder =>
             {
                 builder
                 .WithOrigins(corsSettings) // Configuração de sites que tem permissão para acessar a API
-                .WithMethods("GET", "POST", "PUT", "DELETE") // Configuração de tipos de metodos que serão liberados para consumo GET, POST, PUT, DELETE
+                .WithMethods("GET", "POST", "PUT", "DELETE")
                 .SetIsOriginAllowed((host) => true)
                 .AllowCredentials()
                 .AllowAnyHeader()
@@ -182,14 +187,50 @@ public static class ContainerFastPackForShareServices
         }).AddApiExplorer();
     }
 
-    public static IServiceCollection RegisterRedis(this IServiceCollection services, IConfiguration configuration, string hostConfiguration, string instanceName)
+    public static void RegisterRedis(this IServiceCollection services, IConfiguration configuration, string hostConfiguration, string instanceName)
     {
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = hostConfiguration;
             options.InstanceName = instanceName;
         });
+    }
 
-        return services;
+    public static void RegisterFluentValidation(this IServiceCollection services, string assemblyName)
+    {
+        var myAssembly = AppDomain.CurrentDomain.Load(assemblyName);
+        services.AddValidatorsFromAssembly(myAssembly);
+    }
+
+    public static void RegisterOAuth(this IServiceCollection services, OAuthModel oAuthModel)
+    {
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = "OAuth";
+            options.DefaultChallengeScheme = "OAuth";
+        })
+        .AddOAuth(oAuthModel.OAuthPolicyName, options =>
+        {
+            options.ClientId = oAuthModel.ClientId;
+            options.ClientSecret = oAuthModel.ClientSecret;
+            options.CallbackPath = oAuthModel.CallbackPath;
+            options.AuthorizationEndpoint = oAuthModel.AuthorizationEndpoint;
+            options.TokenEndpoint = oAuthModel.TokenEndpoint;
+            options.SaveTokens = oAuthModel.SaveTokens;
+        });
+    }
+
+    public static void RegisterRateLimit(this IServiceCollection services, string policyName)
+    {
+        services.AddRateLimiter(options =>
+        {
+            options.AddFixedWindowLimiter(policyName, limiterOptions =>
+            {
+                limiterOptions.PermitLimit = 5; // Máximo de 5 requisições
+                limiterOptions.Window = TimeSpan.FromSeconds(10); // Por janela de 10 segundos
+                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                limiterOptions.QueueLimit = 2; // Máximo de 2 requisições na fila
+            });
+        });
     }
 }
