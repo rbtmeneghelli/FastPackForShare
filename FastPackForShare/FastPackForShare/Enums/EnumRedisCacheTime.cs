@@ -2,7 +2,7 @@
 
 public enum EnumRedisCacheTime : byte
 {
-    [Display(Name = "Baixo")]
+    [Display(Name = "Muito Baixo")]
     Min_Low = 2,
 
     [Display(Name = "Baixo")]
@@ -14,6 +14,6 @@ public enum EnumRedisCacheTime : byte
     [Display(Name = "Alto")]
     High = 20,
 
-    [Display(Name = "Alto")]
+    [Display(Name = "Muito Alto")]
     Max_High = 60,
 }
