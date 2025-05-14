@@ -1,4 +1,5 @@
-﻿using FastPackForShare.Interfaces;
+﻿using FastPackForShare.Enums;
+using FastPackForShare.Interfaces;
 using FastPackForShare.Services.Bases;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -13,32 +14,36 @@ public sealed class RedisService : BaseHandlerService, IRedisService
         _cache = cache;
     }
 
-    public async Task AddDataString(string redisKey, string redisData)
+    public async Task AddDataString(string redisKey, string redisData, EnumRedisCacheTime enumRedisCacheTime = EnumRedisCacheTime.Medium)
     {
-        await _cache.SetStringAsync(redisKey, redisData, SetTimeToExpire());
+        await _cache.SetStringAsync(redisKey, redisData, SetTimeToExpire(enumRedisCacheTime));
     }
 
     public async Task<string> GetDataString(string redisKey)
     {
-        var result = await _cache.GetStringAsync(redisKey);
-        return result;
+        return await _cache.GetStringAsync(redisKey);
     }
 
-    public async Task AddDataObject<T>(string redisKey, T redisData) where T : class
+    public async Task AddDataObject<T>(string redisKey, T redisData, EnumRedisCacheTime enumRedisCacheTime = EnumRedisCacheTime.Medium) where T : class
     {
-        await _cache.SetStringAsync(redisKey, JsonSerializer.Serialize(redisData), SetTimeToExpire());
+        await _cache.SetStringAsync(redisKey, JsonSerializer.Serialize(redisData), SetTimeToExpire(enumRedisCacheTime));
     }
 
     public async Task<T> GetDataObject<T>(string redisKey) where T : class
     {
         var result = await _cache.GetStringAsync(redisKey);
-        return JsonSerializer.Deserialize<T>(result);
+        return result is not null ? JsonSerializer.Deserialize<T>(result) : default;
     }
 
-    private DistributedCacheEntryOptions SetTimeToExpire()
+    public async Task RemoveData(string redisKey)
+    {
+        await _cache.RemoveAsync(redisKey);
+    }
+
+    private DistributedCacheEntryOptions SetTimeToExpire(EnumRedisCacheTime enumRedisCacheTime)
     {
         DistributedCacheEntryOptions cacheEntryOptions = new DistributedCacheEntryOptions();
-        cacheEntryOptions.SetAbsoluteExpiration(TimeSpan.FromMinutes(60));
+        cacheEntryOptions.SetAbsoluteExpiration(TimeSpan.FromMinutes((int)enumRedisCacheTime));
         return cacheEntryOptions;
     }
 
