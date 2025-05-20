@@ -54,9 +54,3 @@ OPTIONAL EXTERNAL LIBRARIES TO SUBSTITUTE MEDIATR
 LIBRARIES CREATED BY MYSELF TO SUBSTITUTE MEDIATR
 - SimpleMediator
 - DispatcherMediator
-
-REFERENCES TO CREATE THIS PACKAGE
-- https://desenvolvedor.io/
-- https://balta.io/
-- https://macoratti.net/
-- https://andresecco.com.br/
