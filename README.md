@@ -47,11 +47,11 @@ This project has the mission to avoid repeat and share code of library packages 
 - SkiaSharp
 - Scrutor
 
-<b>OPTIONAL EXTERNAL LIBRARIES TO Substitute MediatR</b>
+<b>OPTIONAL EXTERNAL LIBRARIES TO SUBSTITUTE MEDIATR</b>
 - TinyMediator
 - Microsoft.Extensions.MediatR
 
-<b>LIBRARIES CREATED BY MYSELF TO Substitute MediatR</b>
+<b>LIBRARIES CREATED BY MYSELF TO SUBSTITUTE MEDIATR</b>
 - SimpleMediator
 - DispatcherMediator
 
