@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.Serialization;
 using FastPackForShare.Enums;
@@ -12,9 +11,15 @@ using OfficeOpenXml;
 using NPOI.XWPF.UserModel;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using FastPackForShare.Services.Bases;
-using FastPackForShare.Bases;
 using FastPackForShare.Bases.Generics;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Spreadsheet;
+using FastPackForShare.Services.Bases;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 
 namespace FastPackForShare.Services;
 
@@ -241,6 +246,101 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
 
     #endregion
 
+    #region Methods Write DocumentFormat.OpenXml
+
+    private void SetWorkSheetHeaderFromExcel(ref SheetData sheetData)
+    {
+        DocumentFormat.OpenXml.Spreadsheet.Row row = new DocumentFormat.OpenXml.Spreadsheet.Row();
+        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
+
+        foreach (var propertie in listProperties)
+        {
+            DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell()
+            {
+                CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(propertie.DisplayName),
+                DataType = CellValues.String
+            };
+
+            row.Append(cell);
+        }
+
+        sheetData.Append(row);
+    }
+
+    private void SetWorkSheetContentFromExcel(IEnumerable<TGenericReportModel> list, ref SheetData sheetData)
+    {
+        var dataTable = SharedExtension.ConvertToDataTable(list);
+
+        foreach (DataRow dataRow in dataTable.Rows)
+        {
+            DocumentFormat.OpenXml.Spreadsheet.Row row = new DocumentFormat.OpenXml.Spreadsheet.Row();
+
+            foreach (DataColumn col in dataTable.Columns)
+            {
+                DocumentFormat.OpenXml.Spreadsheet.Cell cell = new DocumentFormat.OpenXml.Spreadsheet.Cell()
+                {
+                    CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(string.Empty),
+                    DataType = CellValues.String
+                };
+
+                if (dataRow[col.ColumnName] != DBNull.Value)
+                {
+                    if (bool.TryParse(dataRow[col.ColumnName].ToString(), out _))
+                    {
+                        cell = new()
+                        {
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(bool.Parse(dataRow[col.ColumnName].ToString()) ?
+                                                                                         EnumStatus.Active.GetDisplayShortName() :
+                                                                                         EnumStatus.Inactive.GetDisplayShortName()),
+                            DataType = CellValues.String
+                        };
+                    }
+                    else if (DateTime.TryParse(dataRow[col.ColumnName].ToString(), out _))
+                    {
+                        cell = new()
+                        {
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(DateTime.Parse(dataRow[col.ColumnName].ToString()).ToShortDateString()),
+                            DataType = CellValues.String
+                        };
+                    }
+                    else if (TimeSpan.TryParse(dataRow[col.ColumnName].ToString(), out _) && dataRow[col.ColumnName].ToString().Length > 10)
+                    {
+                        if (dataRow[col.ColumnName].ToString().IndexOf("T") != -1)
+                        {
+                            cell = new()
+                            {
+                                CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(TimeSpan.Parse(dataRow[col.ColumnName].ToString()).ToString(@"dd\:hh\:mm")),
+                                DataType = CellValues.String
+                            };
+                        }
+                    }
+                    else if (decimal.TryParse(dataRow[col.ColumnName].ToString(), out _))
+                    {
+                        cell = new()
+                        {
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(string.Format(CultureInfo.GetCultureInfo("pt-BR"), "{0:N}", dataRow[col.ColumnName].ToString())),
+                            DataType = CellValues.String
+                        };
+                    }
+                    else
+                    {
+                        cell = new()
+                        {
+                            CellValue = new DocumentFormat.OpenXml.Spreadsheet.CellValue(dataRow[col.ColumnName].ToString()),
+                            DataType = CellValues.String
+                        };
+                    }
+                }
+
+                row.Append(cell);
+            }
+
+            sheetData.Append(row);
+        }
+    }
+
+    #endregion
+
     public async Task<MemoryStream> CreateExcelFileEPPLUS(IEnumerable<TGenericReportModel> list, string excelName)
     {
         ExcelPackage excelPackage = new();
@@ -276,7 +376,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         return await SharedExtension.GetMemoryStreamByFile(path);
     }
 
-    public async Task<MemoryStream> CreateWordFile(IEnumerable<string> list, string wordName)
+    public async Task<MemoryStream> CreateWordFileNPOI(IEnumerable<string> list, string wordName)
     {
         string path = Path.Combine(Directory.GetCurrentDirectory(), wordName);
 
@@ -313,9 +413,63 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         return memoryStreamCsv;
     }
 
+    public async Task<MemoryStream> CreateWordFile(IEnumerable<string> list, string wordName)
+    {
+        string filePath = string.Concat(wordName, ".docx");
+
+        using (WordprocessingDocument wordDoc = WordprocessingDocument.Create(filePath, WordprocessingDocumentType.Document))
+        {
+            MainDocumentPart mainPart = wordDoc.AddMainDocumentPart();
+            mainPart.Document = new DocumentFormat.OpenXml.Wordprocessing.Document();
+            Body body = new Body();
+
+            foreach (var item in list)
+            {
+                Paragraph paragraph = new Paragraph();
+                DocumentFormat.OpenXml.Wordprocessing.Run run = new DocumentFormat.OpenXml.Wordprocessing.Run();
+                run.AppendChild(new DocumentFormat.OpenXml.Wordprocessing.Text(item));
+                paragraph.AppendChild(run);
+                body.AppendChild(paragraph);
+            }
+
+            mainPart.Document.AppendChild(body);
+            mainPart.Document.Save();
+        }
+
+        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+    }
+
+    public async Task<MemoryStream> CreateExcelFile(IEnumerable<TGenericReportModel> list, string excelName, string sheetName)
+    {
+        string filePath = string.Concat(excelName, ".xlsx");
+
+        using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Create(filePath, SpreadsheetDocumentType.Workbook))
+        {
+            WorkbookPart workbookPart = spreadsheetDocument.AddWorkbookPart();
+            workbookPart.Workbook = new Workbook();
+
+            WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+            worksheetPart.Worksheet = new Worksheet(new SheetData());
+
+            Sheets sheets = spreadsheetDocument.WorkbookPart.Workbook.AppendChild(new Sheets());
+            Sheet sheet = new Sheet() { Id = spreadsheetDocument.WorkbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = sheetName };
+            sheets.Append(sheet);
+
+            SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+            DocumentFormat.OpenXml.Spreadsheet.Row row = new DocumentFormat.OpenXml.Spreadsheet.Row();
+
+            SetWorkSheetHeaderFromExcel(ref sheetData);
+            SetWorkSheetContentFromExcel(list, ref sheetData);
+
+            workbookPart.Workbook.Save();
+        }
+
+        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+    }
+
     #region Metodos para realizar Leitura/Escrita de arquivos do tipo Texto
 
-    public async Task CreateAndWriteFileToPath(string filePath, string content)
+    public async Task CreateAndWriteTextFileToPath(string filePath, string content)
     {
         await File.WriteAllTextAsync(filePath, content);
     }
@@ -325,7 +479,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns></returns>
-    public async Task CreateAndWriteLargeFileToPath(string filePath, string content)
+    public async Task CreateAndWriteTextLargeFileToPath(string filePath, string content)
     {
         using (FileStream stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
         {
@@ -343,6 +497,52 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
     }
 
     #endregion
+
+    public async Task<MemoryStream> CreatePdfFile(List<string> list, string pdfHeader, string pdfName)
+    {
+        string filePath = string.Concat(pdfName, ".pdf");
+        int totalLetters = 0;
+
+        QuestPDF.Fluent.Document.Create(container =>
+        {
+            container.Page(page =>
+            {
+                page.Size(PageSizes.A4);
+                page.Margin(2, Unit.Centimetre);
+                page.PageColor(QuestPDF.Helpers.Colors.White);
+                page.DefaultTextStyle(x => x.FontSize(20));
+
+                page.Header().Text(pdfHeader).Bold().AlignCenter();
+
+                page.Content().Column(column =>
+                {
+                    for(int index = 0; index <= list.Count(); index++)
+                    {
+                        string text = list[index];
+                        totalLetters = totalLetters + text.Length;
+
+                        if(totalLetters > 2000)
+                        {
+                            column.Item().PageBreak();
+                            totalLetters = 0;
+                        }
+
+                        column.Item().Text(text).FontSize(10);
+                    }
+                });
+
+                page.Footer().AlignCenter().Text(text =>
+                {
+                    text.CurrentPageNumber();
+                    text.Span(" / ");
+                    text.TotalPages();
+                });
+            });
+        })
+        .GeneratePdf(filePath);
+
+        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+    }
 
     public void Dispose()
     {

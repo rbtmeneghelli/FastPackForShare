@@ -32,17 +32,34 @@ This project has the mission to avoid repeat and share code of library packages 
 - AutoMapper
 - Azure
 - CsvHelper
+- DocumentFormat.OpenXml
 - EntityFramework e EntityFrameworkCore
 - EPPLUS
 - FluentValidation
 - HangFire
+- Mapster
 - MediatR
 - StackExchangeRedis
 - MongoDb
 - NPOI
+- QuestPDF
 - Serilog
 - SkiaSharp
 - Scrutor
+
+<b>OPTIONAL EXTERNAL LIBRARIES TO Substitute MediatR</b>
+- TinyMediator
+- Microsoft.Extensions.MediatR
+
+<b>LIBRARIES CREATED BY MYSELF TO Substitute MediatR</b>
+- SimpleMediator
+- DispatcherMediator
+
+<b>REFERENCES TO CREATE THIS PACKAGE</b>
+- https://desenvolvedor.io/
+- https://balta.io/
+- https://macoratti.net/
+- https://andresecco.com.br/
 
 <b>FINAL RESULT</b>
 <img width="959" alt="image" src="https://github.com/user-attachments/assets/65cf3c2b-a992-439a-9629-d2a1dbfdd986" />

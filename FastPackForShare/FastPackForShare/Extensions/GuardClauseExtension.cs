@@ -1,5 +1,4 @@
-﻿using FastPackForShare.Default;
-using FastPackForShare.Models;
+﻿using FastPackForShare.Models;
 
 namespace FastPackForShare.Extensions;
 
@@ -9,11 +8,8 @@ public static class GuardClauseExtension
     public static bool IsNotNull(object argumentValue) => argumentValue is not null;
     public static bool IsNullOrWhiteSpace(string argumentValue) => string.IsNullOrWhiteSpace(argumentValue);
     public static bool IsNotNullOrWhiteSpace(string argumentValue) => !string.IsNullOrWhiteSpace(argumentValue);
-    public static void IsNotNull(object argumentValue, string argumentName) => BaseDomainException.When(argumentValue is null, argumentName);
-    public static void IsNotNullOrEmpty(string argumentValue, string argumentName) => BaseDomainException.When(string.IsNullOrEmpty(argumentValue), argumentName);
-    public static void IsNotZero(int argumentValue, string argumentName) => BaseDomainException.When(argumentValue == 0, $"Argumento '{argumentName}' não pode ser zero");
-    public static void IsNotSmallerThan(int maxValue, int argumentValue, string argumentName) => BaseDomainException.When(argumentValue >= maxValue, $"Argumento '{argumentName}' não pode exceder '{maxValue}'");
-    public static void IsNotBiggerThan(int minValue, int argumentValue, string argumentName) => BaseDomainException.When(argumentValue <= minValue, $"Argumento '{argumentName}' não pode ser menor que '{minValue}'");
+    public static bool IsNotSmallerThan(int maxValue, int argumentValue) => argumentValue >= maxValue;
+    public static bool IsNotBiggerThan(int minValue, int argumentValue, string argumentName) => argumentValue <= minValue;
     public static bool IsBinaryString(string binaryContent) => Regex.IsMatch(binaryContent, "^[01]+$");
     public static bool HaveDataOnList<T>(List<T> list) => IsNull(list) ? list.Count > 0 : false;
     public static bool HaveDataOnList<T>(IEnumerable<T> list) => IsNotNull(list) ? list.Count() > 0 : false;

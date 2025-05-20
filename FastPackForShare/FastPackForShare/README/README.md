@@ -32,13 +32,31 @@ EXTERNAL LIBRARIES INCLUDED
 - AutoMapper
 - Azure
 - CsvHelper
+- DocumentFormat.OpenXml
 - EntityFramework e EntityFrameworkCore
 - EPPLUS
 - FluentValidation
 - HangFire
+- Mapster
 - MediatR
 - StackExchangeRedis
 - MongoDb
 - NPOI
+- QuestPDF
 - Serilog
 - SkiaSharp
+- Scrutor
+
+OPTIONAL EXTERNAL LIBRARIES TO Substitute MediatR
+- TinyMediator
+- Microsoft.Extensions.MediatR
+
+LIBRARIES CREATED BY MYSELF TO Substitute MediatR
+- SimpleMediator
+- DispatcherMediator
+
+REFERENCES TO CREATE THIS PACKAGE
+- https://desenvolvedor.io/
+- https://balta.io/
+- https://macoratti.net/
+- https://andresecco.com.br/

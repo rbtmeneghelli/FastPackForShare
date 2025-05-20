@@ -2,7 +2,7 @@
 
 namespace FastPackForShare.Interfaces;
 
-public interface IMapperService
+public interface IMapsterService
 {
     TDestination MapDTOToEntity<TSource, TDestination>(TSource source)
     where TSource : BaseDTOModel
@@ -12,3 +12,4 @@ public interface IMapperService
     where TSource : BaseEntityModel
     where TDestination : BaseDTOModel;
 }
+

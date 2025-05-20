@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using FastPackForShare.Default;
-using FastPackForShare.Extensions;
 using FastPackForShare.Interfaces;
 
 namespace FastPackForShare.Services;
@@ -14,9 +13,19 @@ public sealed class MapperService : IMapperService
         _iMapperService = iMapperService;
     }
 
-    public TDestination ApplyMapToEntity<TSource, TDestination>(TSource source)
+    public TDestination MapDTOToEntity<TSource, TDestination>(TSource source) 
+           where TSource : BaseDTOModel
+           where TDestination : BaseEntityModel                                                                   
     {
-        BaseDomainException.When(GuardClauseExtension.IsNull(source), "Ocorreu um erro no processo de mapeamento do objeto, pois ele está Null");
+        BaseDomainException.WhenIfNull(source, "Ocorreu um erro no processo de mapeamento do objeto, pois ele está Null");
+        return _iMapperService.Map<TDestination>(source);
+    }
+
+    public TDestination MapEntityToDTO<TSource, TDestination>(TSource source)
+       where TSource : BaseEntityModel
+       where TDestination : BaseDTOModel
+    {
+        BaseDomainException.WhenIfNull(source, "Ocorreu um erro no processo de mapeamento do objeto, pois ele está Null");
         return _iMapperService.Map<TDestination>(source);
     }
 }
