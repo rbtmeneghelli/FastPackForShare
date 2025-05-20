@@ -12,4 +12,5 @@ public static class ConstantValidation
     public const string LISTEMPTY = "A lista deve conter pelo menos um registro";
     public const string BASE64 = "O Base64 informado não é valido";
     public const string EMAIL = "O email fornecido não é válido.";
+    public const string MAPPER = "Ocorreu um erro no processo de mapeamento do objeto, pois ele está Null";
 }
