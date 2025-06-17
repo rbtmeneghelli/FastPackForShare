@@ -1,5 +1,4 @@
-﻿using FastPackForShare.Bases;
-using FastPackForShare.Bases.Generics;
+﻿using FastPackForShare.Bases.Generics;
 
 namespace FastPackForShare.Interfaces;
 
@@ -13,4 +12,5 @@ public interface IFileReadService<TGenericReportModel> : IDisposable where TGene
     Task<IEnumerable<TGenericReportModel>> ReadCsvDataFromIFormFile(MemoryStream memoryStreamFile);
     Task<string> ReadFileFromPath(string filePath);
     Task<string> ReadLargeFileFromPath(string filePath);
+    IEnumerable<TGenericReportModel> ReadCustomFileFromPath(string filePath, char separator = ',');
 }

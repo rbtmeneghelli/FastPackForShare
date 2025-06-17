@@ -7,8 +7,10 @@ using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using OfficeOpenXml;
 using FastPackForShare.Services.Bases;
-using FastPackForShare.Bases;
 using FastPackForShare.Bases.Generics;
+using System.Data;
+using System.Reflection;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace FastPackForShare.Services;
 
@@ -84,7 +86,7 @@ public sealed class FileReadService<TGenericReportModel> : BaseHandlerService, I
             //TModel model = new(); //Entidade
             IRow row = sheet.GetRow(i);
             if (GuardClauseExtension.IsNull(row)) continue;
-            if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
+            if (row.Cells.All(d => d.CellType == NPOI.SS.UserModel.CellType.Blank)) continue;
             for (int j = row.FirstCellNum; j < cellCount; j++)
             {
                 if (GuardClauseExtension.IsNotNull(row.GetCell(j)))
@@ -232,6 +234,74 @@ public sealed class FileReadService<TGenericReportModel> : BaseHandlerService, I
 
         await Task.CompletedTask;
         return builder.ToString();
+    }
+
+    public IEnumerable<TGenericReportModel> ReadCustomFileFromPath(string filePath, char separator = ',')
+    {
+        DataTable dataTable = new();
+        string line = string.Empty;
+        ListExtensionMethod listExtensionMethod = new();
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException("O arquivo solicitado não existe!", filePath);
+
+        using var reader = new StreamReader(filePath);
+
+        PropertyInfo[] properties = typeof(TGenericReportModel).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var prop in properties)
+        {
+            dataTable.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+        }
+
+        while ((line = reader.ReadLine()) != null)
+        {
+            if (GuardClauseExtension.IsNullOrWhiteSpace(line)) continue;
+
+            ReadOnlySpan<char> data = line.AsSpan();
+            data = data.StartsWith([separator]) ? data.Slice(1) : data;
+            data = data.EndsWith([separator]) ? data.Slice(0, data.Length - 1) : data;
+
+            var values = new object[properties.Length];
+
+            for (int i = 0; i < properties.Length; i++)
+            {
+                int positionPipe = data.IndexOf(separator);
+
+                if (positionPipe == -1 || i == properties.Length - 1)
+                {
+                    values[i] = GetDataFromFile(data);
+                    break;
+                }
+
+                values[i] = GetDataFromFile(data.Slice(0, positionPipe));
+                data = data.Slice(positionPipe + 1);
+            }
+
+            dataTable.Rows.Add(values);
+        }
+
+        return dataTable.Rows.Count > 0 ?
+               listExtensionMethod.ConvertToList<TGenericReportModel>(dataTable)
+               : Enumerable.Empty<TGenericReportModel>();
+    }
+
+    private object GetDataFromFile(ReadOnlySpan<char> data)
+    {
+        if (bool.TryParse(data, out _))
+            return bool.Parse(data);
+        else if (DateTime.TryParse(data, out _))
+            return DateTime.Parse(data).ToShortDateString();
+        else if (TimeSpan.TryParse(data, out _) && data.Length > 10)
+        {
+            if (data.IndexOf("T") != -1) { return TimeSpan.Parse(data).ToString(@"dd\:hh\:mm"); }
+        }
+        else if (decimal.TryParse(data, out _))
+            return decimal.Parse(data);
+        else if (int.TryParse(data, out _))
+            return int.Parse(data);
+
+        return data.ToString();
     }
 
     #endregion
