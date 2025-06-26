@@ -118,7 +118,7 @@ public abstract class GenericController : ControllerBase
                 return StatusCode(customResponseModel.StatusCode, new
                 {
                     success = true,
-                    message = customResponseModel.StatusCode == ConstantMessageResponse.NO_CONTENT_CODE
+                    message = ConstantMessageResponse.NO_CONTENT_CODE
                 });
             }
         }
