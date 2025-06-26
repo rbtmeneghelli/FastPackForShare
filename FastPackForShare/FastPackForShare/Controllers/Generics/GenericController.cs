@@ -64,14 +64,25 @@ public abstract class GenericController : ControllerBase
 
         if (OperationIsValid() && arrStatusCode.Contains(statusCode))
         {
-            return StatusCode(statusCode, new
+            if(result is not null) 
             {
-                success = true,
-                data = result,
-                message = statusCode == ConstantHttpStatusCode.CREATE_CODE
-                          ? ConstantMessageResponse.CREATE_CODE
-                          : messageResponse
-            });
+                return StatusCode(statusCode, new
+                {
+                    success = true,
+                    data = result,
+                    message = statusCode == ConstantHttpStatusCode.CREATE_CODE
+                              ? ConstantMessageResponse.CREATE_CODE
+                              : messageResponse
+                });
+            }
+            else 
+            {
+                return StatusCode(statusCode, new
+                {
+                    success = true,
+                    message = ConstantMessageResponse.NO_CONTENT_CODE
+                });
+            }
         }
         else
         {
@@ -91,14 +102,25 @@ public abstract class GenericController : ControllerBase
 
         if (OperationIsValid() && arrStatusCode.Contains(customResponseModel.StatusCode))
         {
-            return StatusCode(customResponseModel.StatusCode, new
+            if(customResponseModel.Data is not null)
             {
-                success = true,
-                data = customResponseModel.Data,
-                message = customResponseModel.StatusCode == ConstantHttpStatusCode.CREATE_CODE
-                          ? ConstantMessageResponse.CREATE_CODE
-                          : customResponseModel.Message
-            });
+                return StatusCode(customResponseModel.StatusCode, new
+                {
+                    success = true,
+                    data = customResponseModel.Data,
+                    message = customResponseModel.StatusCode == ConstantHttpStatusCode.CREATE_CODE
+                              ? ConstantMessageResponse.CREATE_CODE
+                              : customResponseModel.Message
+                });
+            }
+            else
+            {
+                return StatusCode(customResponseModel.StatusCode, new
+                {
+                    success = true,
+                    message = customResponseModel.StatusCode == ConstantMessageResponse.NO_CONTENT_CODE
+                });
+            }
         }
         else
         {
