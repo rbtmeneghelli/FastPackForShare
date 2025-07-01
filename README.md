@@ -43,6 +43,9 @@ This project has the mission to avoid repeat and share code of library packages 
 - MongoDb
 - NPOI
 - QuestPDF
+- Swagger (Padrão ou Versionado com JWT Token)
+- Swagger com protocolo OAuth 2.0 (KeyCloak ou RdStation)
+- SendGrid
 - Serilog
 - SkiaSharp
 - Scrutor

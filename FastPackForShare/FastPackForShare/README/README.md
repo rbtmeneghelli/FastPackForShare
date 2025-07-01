@@ -43,6 +43,9 @@ EXTERNAL LIBRARIES INCLUDED
 - MongoDb
 - NPOI
 - QuestPDF
+- Swagger (Padrão ou Versionado com JWT Token)
+- Swagger com protocolo OAuth 2.0 (KeyCloak ou RdStation)
+- SendGrid
 - Serilog
 - SkiaSharp
 - Scrutor
