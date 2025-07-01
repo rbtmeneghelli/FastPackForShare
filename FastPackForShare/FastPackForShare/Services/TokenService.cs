@@ -4,6 +4,7 @@ using FastPackForShare.Cryptography;
 using FastPackForShare.Extensions;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FastPackForShare.Services;
@@ -12,6 +13,14 @@ public class TokenService : ITokenService
 {
     private List<RefreshTokensModel> _refreshTokens = new List<RefreshTokensModel>();
     private JwtConfigModel _jwtConfigModel { get; set; }
+    private readonly IHttpClientFactory _ihttpClientFactory;
+    private KeyCloakConfigModel _keyCloakConfigModel;
+
+    public TokenService(IHttpClientFactory ihttpClientFactory, IOptions<KeyCloakConfigModel> keyCloakConfigModel)
+    {
+        _ihttpClientFactory = ihttpClientFactory;
+        _keyCloakConfigModel = keyCloakConfigModel?.Value ?? throw new ArgumentException("KeyCloak não pode ser nulo", nameof(keyCloakConfigModel));
+    }
 
     public JwtConfigModel SetJwtConfigModel(JwtConfigModel jwtConfigModel)
     {
@@ -122,6 +131,28 @@ public class TokenService : ITokenService
         bool tokenIsValid = dataToken != null ? true : false;
         return tokenIsValid;
 
+    }
+
+    public async Task<string> CreateJwtTokenByKeyCloak(string url, string login, string password)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        httpClient.DefaultRequestHeaders.Accept.Clear();
+        var tokenResponse = await httpClient.PostAsync(url,
+        new FormUrlEncodedContent(new Dictionary<string, string>
+        {
+            ["client_id"] = _keyCloakConfigModel.ClientId,
+            ["client_secret"] = _keyCloakConfigModel.ClientSecret,
+            ["grant_type"] = "password",
+            ["username"] = login,
+            ["password"] = password,
+            ["scope"] = "openid profile"
+        }));
+
+        tokenResponse.EnsureSuccessStatusCode();
+
+        using var doc = JsonDocument.Parse(await tokenResponse.Content.ReadAsStringAsync());
+        var token = doc.RootElement.GetProperty("access_token").GetString();
+        return token?.Substring(0, 25);
     }
 
     #region Metodos para validação de acesso em duas etapas

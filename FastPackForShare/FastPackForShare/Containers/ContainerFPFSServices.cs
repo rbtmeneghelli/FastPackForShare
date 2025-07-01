@@ -55,7 +55,9 @@ public static class ContainerFastPackForShareServices
         .AddScoped<IRedisService, RedisService>()
         .AddScoped<IQRCodeService, QRCodeService>()
         .AddTransient<IMapperService, MapperService>()
-        .AddTransient<IMapsterService, MapsterService>();
+        .AddTransient<IMapsterService, MapsterService>()
+        .AddSingleton<ISendGridService, SendGridService>()
+        .AddTransient<IRdStationService, RdStationService>();
     }
 
     public static void RegisterCors(this IServiceCollection services, string[] corsSettings, string corsPolicyName)

@@ -2,8 +2,9 @@
 
 public record SendGridModel
 {
-    public string ApiKey { get; set; }
-    public string Client { get; set; }
-    public string EmailSender { get; set; }
-    public string EmailSenderName { get; set; }
+    public required string EmailFor { get; set; }
+    public required string Subject { get; set; }
+    public string Message { get; set; }
+    public string TemplateId { get; set; }
+    public Dictionary<string, object> Data { get; set; }
 }

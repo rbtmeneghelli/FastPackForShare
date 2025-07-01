@@ -1533,4 +1533,18 @@ public sealed class SharedExtension
         await formfile.CopyToAsync(ms);
         return ms.ToArray();
     }
+
+    public static Dictionary<string, object> ObjectToDictionary(object source)
+    {
+        ArgumentNullException.ThrowIfNull(source, nameof(source));
+
+        var dict = new Dictionary<string, object>();
+
+        foreach (PropertyInfo prop in source.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            dict[prop.Name] = prop.GetValue(source);
+        }
+
+        return dict;
+    }
 }
