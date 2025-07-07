@@ -5,9 +5,9 @@ namespace FastPackForShare.Containers;
 
 public static class ContainerFPFSApplication
 {
-    public static void RegisterApplications(this WebApplication app)
+    public static void RegisterApplications(this WebApplication app, string corsName)
     {
-        app.UseCors("APICORS");
+        app.UseCors(corsName);
         app.UseHangfireDashboard();
     }
 }

@@ -3,18 +3,17 @@ using FastPackForShare.Extensions;
 using FastPackForShare.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Cors;
 using FastPackForShare.Interfaces;
 
 namespace FastPackForShare.Controllers.Generics;
 
 [ApiController]
-[EnableCors("APICORS")]
 [Produces("application/json")]
-[ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
-[ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
-[ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
-[ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomProduceResponseTypeModel<object>))]
+[ProducesResponseType(ConstantHttpStatusCode.NO_CONTENT_CODE, Type = typeof(CustomValidResponseTypeModel<object>))]
+[ProducesResponseType(ConstantHttpStatusCode.BAD_REQUEST_CODE, Type = typeof(CustomInValidResponseTypeModel))]
+[ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomInValidResponseTypeModel))]
+[ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomInValidResponseTypeModel))]
+[ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomInValidResponseTypeModel))]
 public abstract class GenericController : ControllerBase
 {
     protected readonly INotificationMessageService _notificationService;
@@ -64,7 +63,7 @@ public abstract class GenericController : ControllerBase
 
         if (OperationIsValid() && arrStatusCode.Contains(statusCode))
         {
-            if(result is not null) 
+            if (result is not null)
             {
                 return StatusCode(statusCode, new
                 {
@@ -75,7 +74,7 @@ public abstract class GenericController : ControllerBase
                               : messageResponse
                 });
             }
-            else 
+            else
             {
                 return StatusCode(statusCode, new
                 {
@@ -102,7 +101,7 @@ public abstract class GenericController : ControllerBase
 
         if (OperationIsValid() && arrStatusCode.Contains(customResponseModel.StatusCode))
         {
-            if(customResponseModel.Data is not null)
+            if (customResponseModel.Data is not null)
             {
                 return StatusCode(customResponseModel.StatusCode, new
                 {

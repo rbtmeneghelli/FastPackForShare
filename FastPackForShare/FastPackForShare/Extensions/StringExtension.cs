@@ -178,4 +178,24 @@ public static class StringExtension
     public static string GetDescriptionByBoolean(this bool status) => status ? EnumChoice.Yes.GetDisplayShortName() : EnumChoice.No.GetDisplayShortName();
 
     public static string ApplyReplaceToAll(string text, string textToTrade, string newText) => Regex.Replace(text, textToTrade, newText, RegexOptions.IgnoreCase);
+
+    public static string GetInitialsByName(this string fullName)
+    {
+        if (GuardClauseExtension.IsNotNullOrWhiteSpace(fullName))
+            return string.Empty;
+
+        var names = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        if (names.Length == 0)
+            return string.Empty;
+
+        char firstInitial = names[0][0];
+
+        if (names.Length == 1)
+            return char.ToUpper(firstInitial).ToString();
+
+        char lastInicial = names[names.Length - 1][0];
+
+        return $"{char.ToUpper(firstInitial)}{char.ToUpper(lastInicial)}";
+    }
 }
