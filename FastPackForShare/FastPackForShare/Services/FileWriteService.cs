@@ -211,7 +211,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
     private IEnumerable<string> GetLinesToFillCSV(PropertyInfo[] arrPropertyInfo, string headerOriginalProperty, IEnumerable<TGenericReportModel> list)
     {
         var culture = CultureInfo.GetCultureInfo("pt-BR");
-        List<string> lines = new List<string>();
+        ICollection<string> lines = new List<string>();
 
         foreach (var dataObject in list)
         {

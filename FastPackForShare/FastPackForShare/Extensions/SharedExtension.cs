@@ -806,7 +806,7 @@ public sealed class SharedExtension
         return result;
     }
 
-    public List<DropDownListModel> ReadCsvFile(string path)
+    public IEnumerable<DropDownListModel> ReadCsvFile(string path)
     {
         return File.ReadAllLines(path)
         .Skip(1)
@@ -917,7 +917,7 @@ public sealed class SharedExtension
 
     public IEnumerable<Match> EncontrarCadaOcorrenciaDe(string fonte, string criterio, int ocorrencia)
     {
-        List<Match> ocorrencias = new List<Match>();
+        ICollection<Match> ocorrencias = new List<Match>();
         Regex RE = new Regex(criterio, RegexOptions.Multiline);
 
         if (ocorrencia < 1)
@@ -1282,12 +1282,12 @@ public sealed class SharedExtension
         return true;
     }
 
-    public static List<string> CloneList(List<string> list)
+    public static IEnumerable<string> CloneList(List<string> list)
     {
         return list.GetRange(0, list.Count);
     }
 
-    public static List<T> ConvertToList<T>(DataTable dt)
+    public static ICollection<T> ConvertToList<T>(DataTable dt)
     {
         var columnNames = dt.Columns.Cast<DataColumn>().Select(c => c.ColumnName.ToLower()).ToList();
         var properties = typeof(T).GetProperties();
@@ -1394,7 +1394,7 @@ public sealed class SharedExtension
         return array;
     }
 
-    public List<T> GetReverseList<T>(List<T> list) => Enumerable.Reverse(list).ToList();
+    public IEnumerable<T> GetReverseList<T>(List<T> list) => Enumerable.Reverse(list).ToList();
 
     #endregion
 

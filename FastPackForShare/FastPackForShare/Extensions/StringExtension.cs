@@ -8,7 +8,7 @@ public static class StringExtension
     public static string ApplyReplace(this string text, string oldChar, string newChar) => GuardClauseExtension.IsNullOrWhiteSpace(text) == false ? text.Replace(oldChar, newChar) : text;
     public static string SerializeObject(this object data) => JsonSerializer.Serialize(data);
     public static TSource DeserializeObject<TSource>(this string data) => JsonSerializer.Deserialize<TSource>(data);
-    public static StringBuilder BuildString(List<string> listStrings, bool hasWordBreak)
+    public static StringBuilder BuildString(IEnumerable<string> listStrings, bool hasWordBreak)
     {
         StringBuilder sb = new StringBuilder();
 
