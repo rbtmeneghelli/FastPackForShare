@@ -12,6 +12,7 @@ public static class GuardClauseExtension
     public static bool IsNotBiggerThan(int minValue, int argumentValue, string argumentName) => argumentValue <= minValue;
     public static bool IsBinaryString(string binaryContent) => Regex.IsMatch(binaryContent, "^[01]+$");
     public static bool HaveDataOnList<T>(ICollection<T> list) => IsNotNull(list) ? list.Count > 0 : false;
+    public static bool HaveDataOnList<T>(IEnumerable<T> list) => IsNotNull(list) ? list.Count() > 0 : false;
     public static bool IsNumberOnInterval(int minInterval, int number, int maxInterval) => number >= minInterval && number <= maxInterval;
     public static bool ValidatePropertyObject(DropDownListModel dropDownList) => dropDownList is { Id: > 0, Id: <= 100 };
     public static bool IsEqualString(string value, string word) => value.Equals(word, StringComparison.OrdinalIgnoreCase);
