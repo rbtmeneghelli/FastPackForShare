@@ -1,0 +1,9 @@
+public static class CryptographyBasicManager
+{
+    public static string CriarHash(string password)
+    {
+        byte[] salt = Encoding.ASCII.GetBytes(password);
+        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(password, salt, KeyDerivationPrf.HMACSHA1, 10000, 256 / 8));
+        return hashed;
+    }
+}
