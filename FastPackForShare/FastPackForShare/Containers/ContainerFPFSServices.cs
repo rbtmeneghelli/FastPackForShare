@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using FastPackForShare.Models;
+using FastPackForShare.Exceptions;
 
 namespace FastPackForShare.Containers;
 
@@ -151,11 +152,6 @@ public static class ContainerFastPackForShareServices
         services.AddHttpContextAccessor();
     }
 
-    public static void RegisterProblemDetails(this IServiceCollection services)
-    {
-        services.AddProblemDetails();
-    }
-
     public static void RegisterMemoryCache(this IServiceCollection services)
     {
         services.AddMemoryCache();
@@ -235,5 +231,11 @@ public static class ContainerFastPackForShareServices
                 limiterOptions.QueueLimit = 2; // Máximo de 2 requisições na fila
             });
         });
+    }
+
+    public static void RegisterGlobalExceptionHandler(this IServiceCollection services)
+    {
+        services.AddExceptionHandler<GlobalExceptionHandler>();
+        services.AddProblemDetails();
     }
 }
