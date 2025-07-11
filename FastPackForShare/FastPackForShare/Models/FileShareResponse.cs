@@ -1,4 +1,4 @@
-﻿using FastPackForShare.Extensions;
+﻿using FastPackForShare.Helpers;
 
 namespace FastPackForShare.Models;
 
@@ -21,7 +21,7 @@ public record FileShareResponse
             IsSuccess = true;
             FileName = fileName;
             FileExtension = fileExtension;
-            DataBase64 = SharedExtension.GetBase64FromStream(streamFile);
+            DataBase64 = HelperFile.GetBase64FromStream(streamFile);
         }
     }
 }

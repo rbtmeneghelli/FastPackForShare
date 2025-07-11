@@ -20,6 +20,7 @@ using FastPackForShare.Services.Bases;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using FastPackForShare.Helpers;
 
 namespace FastPackForShare.Services;
 
@@ -85,7 +86,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         string[] letters = new[] { "A","B","C","D","E","F","G","H","I","J","K","L","M","N",
                                "O","P","Q","R","S","T","U","V","X","Y","Z" };
 
-        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
+        var listProperties = Helper.GetDataProperties<TGenericReportModel>();
         foreach (var propertie in listProperties)
         {
             workSheet.Cells[1, countColumn].Value = propertie.DisplayName;
@@ -164,7 +165,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         IRow row = excelSheet.CreateRow(0);
         int indexColumn = 0;
 
-        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
+        var listProperties = Helper.GetDataProperties<TGenericReportModel>();
         foreach (var propertie in listProperties)
         {
             row.CreateCell(indexColumn).SetCellValue(propertie.DisplayName);
@@ -251,7 +252,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
     private void SetWorkSheetHeaderFromExcel(ref SheetData sheetData)
     {
         DocumentFormat.OpenXml.Spreadsheet.Row row = new DocumentFormat.OpenXml.Spreadsheet.Row();
-        var listProperties = SharedExtension.GetDataProperties<TGenericReportModel>();
+        var listProperties = Helper.GetDataProperties<TGenericReportModel>();
 
         foreach (var propertie in listProperties)
         {
@@ -269,7 +270,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
 
     private void SetWorkSheetContentFromExcel(IEnumerable<TGenericReportModel> list, ref SheetData sheetData)
     {
-        var dataTable = SharedExtension.ConvertToDataTable(list);
+        var dataTable = Helper.ConvertToDataTable(list);
 
         foreach (DataRow dataRow in dataTable.Rows)
         {
@@ -345,7 +346,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
     {
         ExcelPackage excelPackage = new();
         string path = Path.Combine(Directory.GetCurrentDirectory(), excelName);
-        var dataTable = SharedExtension.ConvertToDataTable(list);
+        var dataTable = Helper.ConvertToDataTable(list);
         var workSheet = excelPackage.Workbook.Worksheets.Add("registros");
         workSheet = GetWorkSheetEPPLUS(workSheet, dataTable);
 
@@ -359,13 +360,13 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         File.WriteAllBytes(path, excelPackage.GetAsByteArray());
         excelPackage.Dispose();
 
-        return await SharedExtension.GetMemoryStreamByFile(path);
+        return await HelperFile.GetMemoryStreamByFile(path);
     }
 
     public async Task<MemoryStream> CreateExcelFileNPOI(IEnumerable<TGenericReportModel> list, string excelName)
     {
         string path = Path.Combine(Directory.GetCurrentDirectory(), excelName);
-        var dataTable = SharedExtension.ConvertToDataTable(list);
+        var dataTable = Helper.ConvertToDataTable(list);
 
         using (var fs = new FileStream(path, FileMode.Create, FileAccess.Write))
         {
@@ -373,7 +374,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
             workBook.Write(fs);
         }
 
-        return await SharedExtension.GetMemoryStreamByFile(path);
+        return await HelperFile.GetMemoryStreamByFile(path);
     }
 
     public async Task<MemoryStream> CreateWordFileNPOI(IEnumerable<string> list, string wordName)
@@ -385,7 +386,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
             XWPFDocument doc = GetWordDocNPOI(list);
             doc.Write(fs);
 
-            return await SharedExtension.GetMemoryStreamByFile(path);
+            return await HelperFile.GetMemoryStreamByFile(path);
         }
     }
 
@@ -436,7 +437,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
             mainPart.Document.Save();
         }
 
-        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+        return await HelperFile.GetMemoryStreamByFile(Path.GetFullPath(filePath));
     }
 
     public async Task<MemoryStream> CreateExcelFile(IEnumerable<TGenericReportModel> list, string excelName, string sheetName)
@@ -464,7 +465,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
             workbookPart.Workbook.Save();
         }
 
-        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+        return await HelperFile.GetMemoryStreamByFile(Path.GetFullPath(filePath));
     }
 
     #region Metodos para realizar Leitura/Escrita de arquivos do tipo Texto
@@ -541,7 +542,7 @@ public sealed class FileWriteService<TGenericReportModel> : BaseHandlerService, 
         })
         .GeneratePdf(filePath);
 
-        return await SharedExtension.GetMemoryStreamByFile(Path.GetFullPath(filePath));
+        return await HelperFile.GetMemoryStreamByFile(Path.GetFullPath(filePath));
     }
 
     public void Dispose()
