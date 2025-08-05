@@ -41,6 +41,8 @@ public static class ContainerFPFSwaggerOptional
                          new string[] {}
                     }
                 });
+
+            c.OperationFilter<AuthOperationFilter>();
         });
     }
 }

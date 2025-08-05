@@ -64,6 +64,8 @@ public static class ContainerFPFSwaggerKeyCloak
                     new[] { "openid", "profile", "email" }
                 }
             });
+
+            options.OperationFilter<AuthOperationFilter>();
         });
     }
 

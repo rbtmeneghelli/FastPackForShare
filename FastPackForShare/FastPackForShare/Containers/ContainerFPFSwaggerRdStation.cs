@@ -44,6 +44,8 @@ public static class ContainerFPFSwaggerRdStation
                     new string[] {}
                 }
             });
+
+            options.OperationFilter<AuthOperationFilter>();
         });
     }
 

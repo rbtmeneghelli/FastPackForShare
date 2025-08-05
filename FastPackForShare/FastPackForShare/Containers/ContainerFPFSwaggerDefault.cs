@@ -1,7 +1,9 @@
 ﻿using FastPackForShare.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FastPackForShare.Containers;
 
@@ -45,6 +47,8 @@ public static class ContainerFPFSwaggerDefault
             });
 
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebAPI.xml"));
+
+            c.OperationFilter<AuthOperationFilter>();
         });
     }
 
@@ -56,5 +60,20 @@ public static class ContainerFPFSwaggerDefault
             c.SwaggerEndpoint("/swagger/V1/swagger.json", swaggerDocConfig.Title);
             c.InjectStylesheet("/Arquivos/swagger-dark.css");
         });
+    }
+}
+
+internal class AuthOperationFilter : IOperationFilter
+{
+    public void Apply(OpenApiOperation operation, OperationFilterContext context)
+    {
+        bool isAnonymous = context.MethodInfo.GetCustomAttributes(true).OfType<AllowAnonymousAttribute>().Any();
+        bool isProtected = context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() ||
+                           context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any();
+
+        if (isProtected)
+        {
+            operation.Summary = $"(Requer Token Autenticação)";
+        }
     }
 }
