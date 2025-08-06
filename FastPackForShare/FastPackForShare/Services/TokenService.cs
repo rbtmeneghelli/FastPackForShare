@@ -178,6 +178,66 @@ public class TokenService : ITokenService
 
     #endregion
 
+    #region Metodos para gerar token de redefinição de senha até 24horas, por exemplo
+
+    public string GenerateTokenRescuePassword(string email, string jwtSecretKey)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.ASCII.GetBytes(jwtSecretKey);
+
+        var brazilianFuse = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+        var brazilianDate = TimeZoneInfo.ConvertTime(DateTime.UtcNow, brazilianFuse);
+
+        var brazilianExpiration = new DateTime(
+            brazilianDate.Year,
+            brazilianDate.Month,
+            brazilianDate.Day,
+            brazilianDate.Hour, brazilianDate.Minute, brazilianDate.Second,
+            DateTimeKind.Unspecified
+        );
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(new[]
+            {
+            new Claim(ClaimTypes.Email, email)
+            }),
+
+            Expires = brazilianExpiration.AddDays(1),
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature
+            ),
+        };
+
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
+    }
+
+    public async Task<CustomResponseModel> ValidateTokenRescuePassword(string token)
+    {
+        var brazilianFuse = TimeZoneInfo.FindSystemTimeZoneById("E. South America Standard Time");
+        var brazilianDate = TimeZoneInfo.ConvertTime(DateTime.UtcNow, brazilianFuse);
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        if (tokenHandler.CanReadToken(token) is false)
+            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Message = "Token Inválido" };
+
+        var tokenData = tokenHandler.ReadToken(token);
+
+        var validDate = TimeZoneInfo.ConvertTime(tokenData.ValidTo, brazilianFuse);
+
+        bool expired = ((brazilianDate.Ticks / TimeSpan.TicksPerSecond) > (validDate.Ticks / TimeSpan.TicksPerSecond));
+
+        if (expired)
+            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Message = "Token Inválido" };
+
+        return new CustomResponseModel { StatusCode = (int)HttpStatusCode.OK, Message = "Token Valido" };
+    }
+
+    #endregion
+
     private AuthenticationModel ExtractDataFromToken(string token)
     {
         var handler = new JwtSecurityTokenHandler();
