@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using FastPackForShare.Enums;
+using System.ComponentModel;
 using System.Reflection;
 
 namespace FastPackForShare.Extensions;
@@ -43,4 +44,8 @@ public static class EnumExtension
             .SingleOrDefault() as DescriptionAttribute;
         return attribute == null ? value.ToString() : attribute.Description;
     }
+
+    public static int GetEnumMaxValue<TEnum>() where TEnum : Enum => Enum.GetValues(typeof(TEnum)).Cast<byte>().Max();
+
+    public static int GetEnumMinValue<TEnum>() where TEnum : Enum => Enum.GetValues(typeof(TEnum)).Cast<byte>().Min();
 }
