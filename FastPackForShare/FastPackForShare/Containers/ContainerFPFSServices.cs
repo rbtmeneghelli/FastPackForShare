@@ -10,7 +10,6 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
-using Serilog.Filters;
 using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
 using System.Data;
@@ -20,6 +19,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using FastPackForShare.Models;
 using FastPackForShare.Exceptions;
+using Serilog.Events;
 
 namespace FastPackForShare.Containers;
 
@@ -95,53 +95,48 @@ public static class ContainerFastPackForShareServices
         services.AddHangfireServer();
     }
 
-    public static void RegisterSeriLog(this IServiceCollection services, string serilog)
-    {
-        Serilog.Log.Logger = new LoggerConfiguration()
-        .Enrich.WithProperty("Project", "API")
-        .Enrich.WithProperty("Environment", "Local")
-        .WriteTo.Seq(serilog).CreateLogger();
-        services.AddSingleton(Serilog.Log.Logger);
-    }
-
-    public static void RegisterSeriLog(this IServiceCollection services, IConfiguration configuration, string connectionStringLogs)
+    public static void RegistrarSerilog(this WebApplicationBuilder builder, string connectionStringLogs)
     {
         Serilog.Debugging.SelfLog.Enable(msg => Console.WriteLine(msg));
 
-        Serilog.Log.Logger = new LoggerConfiguration()
-            .Enrich.WithProperty("CreatedDate", DateTime.Now)
-            .Filter.ByIncludingOnly(Matching.WithProperty("Object"))
-            .WriteTo.MSSqlServer(connectionString: connectionStringLogs,
-            sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
-            {
-                AutoCreateSqlDatabase = false,
-                AutoCreateSqlTable = true,
-                TableName = "Logs",
-                SchemaName = "dbo",
-            },
-            columnOptions: GetSqlColumnOptions()
+        var sinkOptions = new MSSqlServerSinkOptions
+        {
+            TableName = "ControleLogs_Erros",
+            AutoCreateSqlTable = false,
+            AutoCreateSqlDatabase = false,
+            SchemaName = "dbo"
+        };
 
-            ).CreateLogger();
+        var logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
+            .Enrich.FromLogContext()
+            .Enrich.WithMachineName()
+            .WriteTo.MSSqlServer(
+                connectionString: connectionStringLogs,
+                sinkOptions: sinkOptions,
+                restrictedToMinimumLevel: LogEventLevel.Information,
+                columnOptions: GetSqlColumnOptions()
+            )
+            .CreateLogger();
 
-        services.AddSingleton(Serilog.Log.Logger);
+        builder.Host.UseSerilog(logger);
+        builder.Services.AddSingleton<Serilog.ILogger>(logger);
     }
 
     public static ColumnOptions GetSqlColumnOptions()
     {
-        var colOptions = new ColumnOptions();
-        colOptions.Store.Remove(StandardColumn.Properties);
-        colOptions.Store.Remove(StandardColumn.MessageTemplate);
-        colOptions.Store.Remove(StandardColumn.Message);
-        colOptions.Store.Remove(StandardColumn.Exception);
-        colOptions.Store.Remove(StandardColumn.TimeStamp);
-
-        colOptions.AdditionalColumns = new Collection<SqlColumn>
+        var colOptions = new ColumnOptions
         {
+            Store = new Collection<StandardColumn>(),
+            AdditionalColumns = new Collection<SqlColumn>
+            {
             new SqlColumn{ DataType = SqlDbType.VarChar, ColumnName = "Class", DataLength = 100, AllowNull = true},
             new SqlColumn{ DataType = SqlDbType.VarChar, ColumnName = "Method", DataLength = 100, AllowNull = true},
             new SqlColumn{ DataType = SqlDbType.VarChar, ColumnName = "MessageError", DataLength = 2000, AllowNull = true},
             new SqlColumn{ DataType = SqlDbType.VarChar, ColumnName = "Object", AllowNull = true},
             new SqlColumn{ DataType = SqlDbType.DateTime, ColumnName = "CreatedDate", AllowNull = false},
+            }
         };
 
         return colOptions;
