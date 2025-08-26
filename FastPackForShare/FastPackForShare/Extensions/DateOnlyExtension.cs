@@ -118,4 +118,37 @@ public sealed class DateOnlyExtension
     {
         return dateTime.ToString("yyyy-MM-dd");
     }
+
+    public static string GetElapsedTime(DateTime? data)
+    {
+        if (data == null)
+            return "sem data";
+
+        var dataAgora = GetDateTimeNowFromBrazil();
+
+        var dataInformada = data.Value;
+
+        if (dataInformada > dataAgora)
+            dataInformada = dataAgora;
+
+        var minutos = (int)(dataAgora - dataInformada).TotalMinutes;
+
+        if (minutos < 60)
+            return $"{minutos} {(minutos == 1 ? "minuto" : "minutos")} atrás";
+
+        var horas = (int)(dataAgora - dataInformada).TotalHours;
+        if (horas < 24)
+            return $"{horas} {(horas == 1 ? "hora" : "horas")} atrás";
+
+        var dias = (int)(dataAgora - dataInformada).TotalDays;
+        if (dias < 30)
+            return $"{dias} {(dias == 1 ? "dia" : "dias")} atrás";
+
+        var meses = ((dataAgora.Year - dataInformada.Year) * 12) + (dataAgora.Month - dataInformada.Month);
+        if (meses < 12)
+            return $"{meses} {(meses == 1 ? "mês" : "meses")} atrás";
+
+        var anos = dataAgora.Year - dataInformada.Year;
+        return $"{anos} {(anos == 1 ? "ano" : "anos")} atrás";
+    }
 }
