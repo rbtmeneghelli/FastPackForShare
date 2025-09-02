@@ -1,9 +1,11 @@
-﻿using FastPackForShare.Interfaces;
+﻿using FastPackForShare.Enums;
+using FastPackForShare.Extensions;
+using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Org.BouncyCastle.Ocsp;
-using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace FastPackForShare.Services;
 
@@ -11,11 +13,13 @@ public sealed class RdStationService : IRdStationService
 {
     private readonly IHttpClientFactory _ihttpClientFactory;
     private RdStationConfigModel _rdStationConfigModel;
+    private readonly IMemoryCache _memoryCache;
 
-    public RdStationService(IHttpClientFactory ihttpClientFactory, IOptions<RdStationConfigModel> rdStationConfigModel)
+    public RdStationService(IHttpClientFactory ihttpClientFactory, IOptions<RdStationConfigModel> rdStationConfigModel, IMemoryCache memoryCache)
     {
         _ihttpClientFactory = ihttpClientFactory;
         _rdStationConfigModel = rdStationConfigModel?.Value ?? throw new ArgumentException("RdStation não pode ser nulo", nameof(rdStationConfigModel));
+        _memoryCache = memoryCache;
     }
 
     public string GetCode()
@@ -88,4 +92,117 @@ public sealed class RdStationService : IRdStationService
 
         return json;
     }
+
+    #region Generic Methods
+
+    public async Task<RdStationResult> ApplyRequestHttpGet<TContent>(RdStationReqDto rdStationReqDto)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
+        var response = await httpClient.GetAsync(rdStationReqDto.URL);
+        var resultado = await GetResponse<TContent>(response);
+        return resultado;
+    }
+
+    public async Task<RdStationResult> ApplyRequestHttpPost<TContent>(RdStationReqDto rdStationReqDto)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
+        var response = await httpClient.PostAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
+        var resultado = await GetResponse<TContent>(response);
+        return resultado;
+    }
+
+    public async Task<RdStationResult> ApplyRequestHttpPut<TContent>(RdStationReqDto rdStationReqDto)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
+        var response = await httpClient.PutAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
+        var resultado = await GetResponse<TContent>(response);
+        return resultado;
+    }
+
+    public async Task<RdStationResult> ApplyRequestHttpDelete<TContent>(RdStationReqDto rdStationReqDto)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
+        var response = await httpClient.DeleteAsync(rdStationReqDto.URL);
+        var resultado = await GetResponse<TContent>(response);
+        return resultado;
+    }
+
+    private async Task GenerateTokenAutentication(EnumRdStationAutentication enumRdStationAutenticacao)
+    {
+        var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        DateTime dataHoraAtual = DateOnlyExtension.GetDateTimeNowFromBrazil();
+        RdStationRespTokenDto rdStationAutenticacao = new();
+
+        if (enumRdStationAutenticacao.Equals(EnumRdStationAutentication.AUTENTICACAO_BEARERTOKEN))
+        {
+            if (!_memoryCache.TryGetValue("MeuObjetoCache", out RdStationRespTokenDto cachedObject))
+            {
+                var payLoad = new
+                {
+                    client_id = _rdStationConfigModel.ClientId,
+                    client_secret = _rdStationConfigModel.ClientSecret,
+                    code = _rdStationConfigModel.Code
+                };
+
+                var response = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token?token_by={_rdStationConfigModel.Code}", payLoad);
+
+                if (response.StatusCode.Equals(HttpStatusCode.OK))
+                {
+                    rdStationAutenticacao = await response.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(cachedObject.SecondsToExpire)
+                    };
+
+                    rdStationAutenticacao.ExpirationTokenDate = dataHoraAtual.AddSeconds(cachedObject.SecondsToExpire);
+                    _memoryCache.Set("MeuObjetoCache", rdStationAutenticacao, cacheEntryOptions);
+                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAutenticacao.Token}");
+                }
+            }
+
+            else if (cachedObject.ExpirationTokenDate.HasValue && cachedObject.ExpirationTokenDate > dataHoraAtual)
+            {
+                var payLoadAtualizado = new
+                {
+                    client_id = _rdStationConfigModel.ClientId,
+                    client_secret = _rdStationConfigModel.ClientSecret,
+                    refresh_token = cachedObject.RefreshToken
+                };
+
+                var responseAtualizado = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado);
+                if (responseAtualizado.StatusCode.Equals(HttpStatusCode.OK))
+                {
+                    rdStationAutenticacao = await responseAtualizado.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
+
+                    var cacheEntryOptions = new MemoryCacheEntryOptions
+                    {
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(cachedObject.SecondsToExpire)
+                    };
+
+                    rdStationAutenticacao.ExpirationTokenDate = dataHoraAtual.AddSeconds(cachedObject.SecondsToExpire);
+                    _memoryCache.Set("MeuObjetoCache", cachedObject, cacheEntryOptions);
+                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {cachedObject.Token}");
+                }
+            }
+        }
+    }
+
+    private async Task<RdStationResult> GetResponse<TContent>(HttpResponseMessage response)
+    {
+        if (response.StatusCode.Equals(HttpStatusCode.OK))
+        {
+            var resultadoOk = await response.Content.ReadFromJsonAsync<TContent>();
+            return new RdStationResult { Code = (int)response.StatusCode, Data = resultadoOk, Message = "OK" };
+        }
+
+        var resultadoErro = await response.Content.ReadFromJsonAsync<dynamic>();
+        return new RdStationResult { Code = (int)response.StatusCode, Data = resultadoErro, Message = "Erro" };
+    }
+
+    #endregion
 }
