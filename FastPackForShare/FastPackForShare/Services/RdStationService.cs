@@ -100,8 +100,8 @@ public sealed class RdStationService : IRdStationService
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
         var response = await httpClient.GetAsync(rdStationReqDto.URL);
-        var resultado = await GetResponse<TContent>(response);
-        return resultado;
+        var result = await GetResponse<TContent>(response);
+        return result;
     }
 
     public async Task<RdStationResult> ApplyRequestHttpPost<TContent>(RdStationReqDto rdStationReqDto)
@@ -109,8 +109,8 @@ public sealed class RdStationService : IRdStationService
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
         var response = await httpClient.PostAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
-        var resultado = await GetResponse<TContent>(response);
-        return resultado;
+        var result = await GetResponse<TContent>(response);
+        return result;
     }
 
     public async Task<RdStationResult> ApplyRequestHttpPut<TContent>(RdStationReqDto rdStationReqDto)
@@ -118,8 +118,8 @@ public sealed class RdStationService : IRdStationService
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
         var response = await httpClient.PutAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
-        var resultado = await GetResponse<TContent>(response);
-        return resultado;
+        var result = await GetResponse<TContent>(response);
+        return result;
     }
 
     public async Task<RdStationResult> ApplyRequestHttpDelete<TContent>(RdStationReqDto rdStationReqDto)
@@ -127,19 +127,19 @@ public sealed class RdStationService : IRdStationService
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
         var response = await httpClient.DeleteAsync(rdStationReqDto.URL);
-        var resultado = await GetResponse<TContent>(response);
-        return resultado;
+        var result = await GetResponse<TContent>(response);
+        return result;
     }
 
-    private async Task GenerateTokenAutentication(EnumRdStationAutentication enumRdStationAutenticacao)
+    private async Task GenerateTokenAutentication(EnumRdStationAutentication enumRdStationAuthentication)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
-        DateTime dataHoraAtual = DateOnlyExtension.GetDateTimeNowFromBrazil();
-        RdStationRespTokenDto rdStationAutenticacao = new();
+        DateTime currentDateTime = DateOnlyExtension.GetDateTimeNowFromBrazil();
+        RdStationRespTokenDto rdStationAuthentication = new();
 
-        if (enumRdStationAutenticacao.Equals(EnumRdStationAutentication.AUTENTICACAO_BEARERTOKEN))
+        if (enumRdStationAuthentication.Equals(EnumRdStationAutentication.AUTENTICACAO_BEARERTOKEN))
         {
-            if (!_memoryCache.TryGetValue("MeuObjetoCache", out RdStationRespTokenDto cachedObject))
+            if (!_memoryCache.TryGetValue("MyObjectCache", out RdStationRespTokenDto cachedObject))
             {
                 var payLoad = new
                 {
@@ -152,15 +152,15 @@ public sealed class RdStationService : IRdStationService
 
                 if (response.StatusCode.Equals(HttpStatusCode.OK))
                 {
-                    rdStationAutenticacao = await response.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
+                    rdStationAuthentication = await response.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions
                     {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(cachedObject.SecondsToExpire)
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(rdStationAuthentication.SecondsToExpire)
                     };
 
-                    rdStationAutenticacao.ExpirationTokenDate = dataHoraAtual.AddSeconds(cachedObject.SecondsToExpire);
-                    _memoryCache.Set("MeuObjetoCache", rdStationAutenticacao, cacheEntryOptions);
+                    rdStationAuthentication.ExpirationTokenDate = currentDateTime.AddSeconds(rdStationAuthentication.SecondsToExpire);
+                    _memoryCache.Set("MyObjectCache", rdStationAutenticacao, cacheEntryOptions);
                     httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAutenticacao.Token}");
                 }
             }
@@ -174,19 +174,19 @@ public sealed class RdStationService : IRdStationService
                     refresh_token = cachedObject.RefreshToken
                 };
 
-                var responseAtualizado = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado);
+                var responseRefresh = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado);
                 if (responseAtualizado.StatusCode.Equals(HttpStatusCode.OK))
                 {
-                    rdStationAutenticacao = await responseAtualizado.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
+                    rdStationAuthentication = await responseRefresh.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
 
                     var cacheEntryOptions = new MemoryCacheEntryOptions
                     {
-                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(cachedObject.SecondsToExpire)
+                        AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(rdStationAuthentication.SecondsToExpire)
                     };
 
-                    rdStationAutenticacao.ExpirationTokenDate = dataHoraAtual.AddSeconds(cachedObject.SecondsToExpire);
-                    _memoryCache.Set("MeuObjetoCache", cachedObject, cacheEntryOptions);
-                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {cachedObject.Token}");
+                    rdStationAutenticacao.ExpirationTokenDate = currentDateTime.AddSeconds(rdStationAuthentication.SecondsToExpire);
+                    _memoryCache.Set("MyObjectCache", rdStationAuthentication, cacheEntryOptions);
+                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAuthentication.Token}");
                 }
             }
         }
@@ -196,12 +196,12 @@ public sealed class RdStationService : IRdStationService
     {
         if (response.StatusCode.Equals(HttpStatusCode.OK))
         {
-            var resultadoOk = await response.Content.ReadFromJsonAsync<TContent>();
-            return new RdStationResult { Code = (int)response.StatusCode, Data = resultadoOk, Message = "OK" };
+            var resultOK = await response.Content.ReadFromJsonAsync<TContent>();
+            return new RdStationResult { Code = (int)response.StatusCode, Data = resultOK, Message = "OK" };
         }
 
-        var resultadoErro = await response.Content.ReadFromJsonAsync<dynamic>();
-        return new RdStationResult { Code = (int)response.StatusCode, Data = resultadoErro, Message = "Erro" };
+        var resultError = await response.Content.ReadFromJsonAsync<dynamic>();
+        return new RdStationResult { Code = (int)response.StatusCode, Data = resultError, Message = "Erro" };
     }
 
     #endregion
