@@ -12,6 +12,17 @@ public abstract class BaseEntityModel : GenericEntityModel
     private long? _id;
     public long? Id { get { return _id; } set { _id = value.HasValue ? (value > 0 ? value : null) : null; } }
 
+    //#region Código valido a partir do NET 10
+
+    ///// <summary>
+    ///// A palavra chave field faz o papel do campo private, nesse caso seria o _id
+    ///// </summary>
+
+    //[Display(Name = "Id")]
+    //public long? Id { get { return field; } set { field = value.HasValue ? (value > 0 ? value : null) : null; } }
+
+    //#endregion
+
     public DateTime? CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
