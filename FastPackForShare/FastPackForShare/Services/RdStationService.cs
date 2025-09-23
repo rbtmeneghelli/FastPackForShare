@@ -160,12 +160,12 @@ public sealed class RdStationService : IRdStationService
                     };
 
                     rdStationAuthentication.ExpirationTokenDate = currentDateTime.AddSeconds(rdStationAuthentication.SecondsToExpire);
-                    _memoryCache.Set("MyObjectCache", rdStationAutenticacao, cacheEntryOptions);
-                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAutenticacao.Token}");
+                    _memoryCache.Set("MyObjectCache", rdStationAuthentication, cacheEntryOptions);
+                    httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAuthentication.Token}");
                 }
             }
 
-            else if (cachedObject.ExpirationTokenDate.HasValue && cachedObject.ExpirationTokenDate > dataHoraAtual)
+            else if (cachedObject.ExpirationTokenDate.HasValue && cachedObject.ExpirationTokenDate > currentDateTime)
             {
                 var payLoadAtualizado = new
                 {
@@ -175,7 +175,7 @@ public sealed class RdStationService : IRdStationService
                 };
 
                 var responseRefresh = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado);
-                if (responseAtualizado.StatusCode.Equals(HttpStatusCode.OK))
+                if (responseRefresh.StatusCode.Equals(HttpStatusCode.OK))
                 {
                     rdStationAuthentication = await responseRefresh.Content.ReadFromJsonAsync<RdStationRespTokenDto>();
 
@@ -184,7 +184,7 @@ public sealed class RdStationService : IRdStationService
                         AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(rdStationAuthentication.SecondsToExpire)
                     };
 
-                    rdStationAutenticacao.ExpirationTokenDate = currentDateTime.AddSeconds(rdStationAuthentication.SecondsToExpire);
+                    rdStationAuthentication.ExpirationTokenDate = currentDateTime.AddSeconds(rdStationAuthentication.SecondsToExpire);
                     _memoryCache.Set("MyObjectCache", rdStationAuthentication, cacheEntryOptions);
                     httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {rdStationAuthentication.Token}");
                 }
