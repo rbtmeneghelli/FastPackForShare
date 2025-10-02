@@ -2,6 +2,8 @@
 
 public enum EnumMemoryStreamFile
 {
+    [Display(Name = "Todos")]
+    All = 0,
     [Display(Name = "xlsx")]
     XLSX = 1,
     [Display(Name = "pdf")]

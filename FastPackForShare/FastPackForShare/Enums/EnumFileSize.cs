@@ -2,6 +2,9 @@
 
 public enum EnumFileSize : byte
 {
+    [Display(Name = "Todos")]
+    All = 0,
+
     [Display(Name = "Tamanho em kilobytes")]
     KB = 1,
 

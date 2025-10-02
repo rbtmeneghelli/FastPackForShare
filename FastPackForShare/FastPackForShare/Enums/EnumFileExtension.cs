@@ -2,6 +2,9 @@
 
 public enum EnumFile : byte
 {
+    [Display(Name = "Todos")]
+    All = 0,
+
     [Display(Name = "Excel")]
     Excel = 1,
 

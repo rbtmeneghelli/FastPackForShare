@@ -2,9 +2,12 @@
 
 public enum EnumStatus : byte
 {
+    [Display(Name = "Todos")]
+    All = 0,
+
     [Display(Name = "Inativo")]
-    Inactive = 0,
+    Inactive = 1,
 
     [Display(Name = "Ativo")]
-    Active = 1
+    Active = 2
 }

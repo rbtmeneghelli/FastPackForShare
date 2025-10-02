@@ -1,7 +1,9 @@
-﻿using FastPackForShare.Models;
+﻿using FastPackForShare.Enums;
+using FastPackForShare.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -49,6 +51,12 @@ public static class ContainerFPFSwaggerDefault
             c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "WebAPI.xml"));
 
             c.OperationFilter<AuthOperationFilter>();
+
+            c.MapType<EnumStatus>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
+            });
         });
     }
 

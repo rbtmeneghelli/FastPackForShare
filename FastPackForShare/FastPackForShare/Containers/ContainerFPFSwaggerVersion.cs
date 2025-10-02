@@ -1,4 +1,5 @@
 ﻿using FastPackForShare.Constants;
+using FastPackForShare.Enums;
 using FastPackForShare.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -29,6 +30,12 @@ public static class ContainerFPFSwaggerVersion
                     },
                     new string[] {}
                 }
+            });
+
+            c.MapType<EnumStatus>(() => new OpenApiSchema
+            {
+                Type = "string",
+                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
             });
         });
 
