@@ -21,23 +21,6 @@ public sealed class FileReadService<TGenericReportModel> : BaseHandlerService, I
     {
     }
 
-    private async Task<MemoryStream> GetMemoryStreamByFile(string path)
-    {
-        MemoryStream memoryStream = new MemoryStream();
-
-        using (var fileStream = new FileStream(path, FileMode.Open))
-        {
-            await fileStream.CopyToAsync(memoryStream);
-        }
-
-        memoryStream.Position = 0;
-
-        if (File.Exists(path))
-            File.Delete(path);
-
-        return memoryStream;
-    }
-
     #region Methods Read EPPLUS
 
     private IEnumerable<TGenericReportModel> ReadExcelDataEPPLUS(Stream excelFileStream)
@@ -120,6 +103,33 @@ public sealed class FileReadService<TGenericReportModel> : BaseHandlerService, I
 
     #region Methods Read CSV
 
+    public async Task<IEnumerable<TGenericReportModel>> ReadCsvFileFromPath(string csvFilePath)
+    {
+        var result = ParseCsv<TGenericReportModel>(csvFilePath);
+        await Task.CompletedTask;
+        return result;
+    }
+
+    public async Task<List<string[]>> ReadCsvFileFromStream(Stream stream)
+    {
+        var result = new List<string[]>();
+
+        using (var reader = new StreamReader(stream, Encoding.UTF8))
+        using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        {
+            await foreach (var record in csv.GetRecordsAsync<TGenericReportModel>())
+            {
+                var values = ((IDictionary<string, object>)record).Values.Select(v => v?.ToString() ?? "").ToArray();
+                result.Add(values);
+
+                if (result.Count >= 100000)
+                    break;
+            }
+        }
+
+        return result;
+    }
+
     public IEnumerable<TGenericReportModel> ParseCsv<T>(string csvFilePath)
     {
         using var reader = new StreamReader(csvFilePath);
@@ -170,14 +180,7 @@ public sealed class FileReadService<TGenericReportModel> : BaseHandlerService, I
         return Enumerable.Empty<TGenericReportModel>();
     }
 
-    public async Task<IEnumerable<TGenericReportModel>> ReadCsvData(string csvFilePath)
-    {
-        var result = ParseCsv<TGenericReportModel>(csvFilePath);
-        await Task.CompletedTask;
-        return result;
-    }
-
-    public async Task<IEnumerable<TGenericReportModel>> ReadCsvDataFromIFormFile(MemoryStream memoryStreamFile)
+    public async Task<IEnumerable<TGenericReportModel>> ReadCsvFileFromIFormFile(MemoryStream memoryStreamFile)
     {
         var list = Enumerable.Empty<TGenericReportModel>();
 

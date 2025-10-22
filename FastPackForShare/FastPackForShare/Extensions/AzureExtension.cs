@@ -62,11 +62,24 @@ public static class AzureExtension
         }
     }
 
-    public static async Task<string> GetSecretFromAzureKeyVault(string azureKeyVaultUrl, string secretName)
+    public static async Task<string> GetValueFromAzureSecret(string azureKeyVaultUrl, string secretName)
     {
         var client = new SecretClient(new Uri(azureKeyVaultUrl), new DefaultAzureCredential());
         KeyVaultSecret secret = await client.GetSecretAsync(secretName);
         return secret.Value;
+    }
+
+    public static async Task<string> GetValueFromAzureSecret(string keyVaultName, string azureTenantId, string azureAppId, string azureAppSecret, string secretName)
+    {
+        var keyVaultUri = new Uri($"https://{keyVaultName}.vault.azure.net/");
+        var clientSecretCredential = new ClientSecretCredential(azureTenantId, azureAppId, azureAppSecret);
+
+        var secretClient = new SecretClient(keyVaultUri, clientSecretCredential);
+
+        var userKeyVault = await secretClient.GetSecretAsync(secretName);
+        var value = userKeyVault.Value.Value;
+
+        return value;
     }
 
     #region Private Methods
