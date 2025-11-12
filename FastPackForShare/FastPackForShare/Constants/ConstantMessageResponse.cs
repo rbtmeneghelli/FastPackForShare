@@ -19,15 +19,8 @@ public static class ConstantMessageResponse
     public const string SERVICE_NOT_RUNNING = "O serviço {0} não está em execução";
     public const string REQUEST_API = "Erro ao efetuar request da Api externa: {0}";
 
-    public static string GetMessageResponse(int statusCode)
+    private static readonly Dictionary<int,string> dictionary = new()    
     {
-        statusCode = statusCode.Equals(ConstantHttpStatusCode.OK_CODE)
-                     ? ConstantHttpStatusCode.INTERNAL_ERROR_CODE
-                     : statusCode;
-
-        Dictionary<int, string> dictionary = new()
-    {
-
         { ConstantHttpStatusCode.NOT_FOUND_CODE, NOT_FOUND_CODE },
         { ConstantHttpStatusCode.BAD_REQUEST_CODE, BAD_REQUEST_CODE },
         { ConstantHttpStatusCode.UNAUTHORIZED_CODE, UNAUTHORIZED_CODE },
@@ -35,6 +28,12 @@ public static class ConstantMessageResponse
         { ConstantHttpStatusCode.OK_CODE, INTERNAL_ERROR_CODE },
         { ConstantHttpStatusCode.AUTHENTICATION_REQUIRED_CODE, AUTHENTICATION_REQUIRED_CODE },
     };
+
+    public static string GetMessageResponse(int statusCode)
+    {
+        statusCode = statusCode.Equals(ConstantHttpStatusCode.OK_CODE)
+                     ? ConstantHttpStatusCode.INTERNAL_ERROR_CODE
+                     : statusCode;
 
         return dictionary[statusCode];
     }

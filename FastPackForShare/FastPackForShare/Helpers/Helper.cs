@@ -21,29 +21,9 @@ public sealed class Helper
 {
     private static IHostEnvironment _environment;
     private delegate decimal MyOperations(decimal number);
+    private static readonly DateTime currentDate = DateOnlyExtension.GetDateTimeNowFromBrazil();
 
-    public Helper()
-    {
-
-    }
-
-    public Helper(IHostEnvironment environment)
-    {
-        _environment = environment;
-    }
-
-    #region Private Methods
-
-    private XmlDocument RemoveXmlDeclaration(XmlDocument doc)
-    {
-        var declarations = doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.XmlDeclaration).ToList();
-        declarations.ForEach(x => doc.RemoveChild(x));
-        return doc;
-    }
-
-    private string GetFuseTimebyState(string state)
-    {
-        var dictionaryTimeZoneFromBrasil = new Dictionary<string, string>
+    private static readonly Dictionary<string, string> dictionaryTimeZoneFromBrasil = new Dictionary<string, string>
     {
         { "AC", "America/Rio_Branco" }, // Acre
         { "AL", "America/Maceio" },    // Alagoas
@@ -75,6 +55,54 @@ public sealed class Helper
         { "TO", "America/Araguaina" }  // Tocantins
     };
 
+    private static readonly Dictionary<EnumPeriod, string> dictionaryCron = new Dictionary<EnumPeriod, string>
+    {
+        { EnumPeriod.Never, "0 0 31 2 *" },
+        { EnumPeriod.Daily, "0 0 * * *" },
+        { EnumPeriod.Weekly, "0 0 * * 1" },
+        { EnumPeriod.Monthly, "0 0 1 * *" },
+        { EnumPeriod.Yearly, "0 0 1 1 *" }
+    };
+
+    private static readonly Dictionary<EnumPeriod, string> dictionaryStartDateToJob = new Dictionary<EnumPeriod, string>
+    {
+        { EnumPeriod.Daily, currentDate.ToString("yyyy-MM-dd") },
+        { EnumPeriod.Weekly, GetFirstDayOfWeek(currentDate).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Monthly, new DateTime(currentDate.Year, currentDate.Month, 1).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Yearly, new DateTime(currentDate.Year, 1, 1).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Never, "" }
+    };
+
+    private static readonly Dictionary<EnumPeriod, string> dictionaryEndDateToJob = new Dictionary<EnumPeriod, string>
+    {
+        { EnumPeriod.Daily, currentDate.ToString("yyyy-MM-dd") },
+        { EnumPeriod.Weekly, GetLastDayOfWeek(currentDate).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Monthly, new DateTime(currentDate.Year, currentDate.Month, 1).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Yearly, new DateTime(currentDate.Year, 12, 31).ToString("yyyy-MM-dd") },
+        { EnumPeriod.Never, "" }
+    };
+
+    public Helper()
+    {
+
+    }
+
+    public Helper(IHostEnvironment environment)
+    {
+        _environment = environment;
+    }
+
+    #region Private Methods
+
+    private XmlDocument RemoveXmlDeclaration(XmlDocument doc)
+    {
+        var declarations = doc.ChildNodes.OfType<XmlNode>().Where(x => x.NodeType == XmlNodeType.XmlDeclaration).ToList();
+        declarations.ForEach(x => doc.RemoveChild(x));
+        return doc;
+    }
+
+    private string GetFuseTimebyState(string state)
+    {
         if (dictionaryTimeZoneFromBrasil.TryGetValue(state, out var value))
             return value;
 
@@ -348,18 +376,10 @@ public sealed class Helper
 
     public string GetCron(EnumPeriod typeExecution)
     {
-        Dictionary<EnumPeriod, string> dictionary = new Dictionary<EnumPeriod, string>
-    {
-        { EnumPeriod.Never, "0 0 31 2 *" },
-        { EnumPeriod.Daily, "0 0 * * *" },
-        { EnumPeriod.Weekly, "0 0 * * 1" },
-        { EnumPeriod.Monthly, "0 0 1 * *" },
-        { EnumPeriod.Yearly, "0 0 1 1 *" }
-    };
-        return dictionary[typeExecution];
+        return dictionaryCron[typeExecution];
     }
 
-    public DateTime GetFirstDayOfWeek(DateTime date)
+    public static DateTime GetFirstDayOfWeek(DateTime date)
     {
         var culture = Thread.CurrentThread.CurrentCulture;
         var diff = date.DayOfWeek - culture.DateTimeFormat.FirstDayOfWeek;
@@ -649,30 +669,12 @@ public sealed class Helper
 
     public string StartDateToJob(EnumPeriod key)
     {
-        DateTime currentDate = DateOnlyExtension.GetDateTimeNowFromBrazil();
-        Dictionary<EnumPeriod, string> dictionary = new Dictionary<EnumPeriod, string>
-        {
-            { EnumPeriod.Daily, currentDate.ToString("yyyy-MM-dd") },
-            { EnumPeriod.Weekly, GetFirstDayOfWeek(currentDate).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Monthly, new DateTime(currentDate.Year, currentDate.Month, 1).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Yearly, new DateTime(currentDate.Year, 1, 1).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Never, "" }
-        };
-        return dictionary[key];
+        return dictionaryStartDateToJob[key];
     }
 
     public string EndDateToJob(EnumPeriod key)
     {
-        DateTime currentDate = DateOnlyExtension.GetDateTimeNowFromBrazil();
-        Dictionary<EnumPeriod, string> dictionary = new Dictionary<EnumPeriod, string>
-        {
-            { EnumPeriod.Daily, currentDate.ToString("yyyy-MM-dd") },
-            { EnumPeriod.Weekly, GetLastDayOfWeek(currentDate).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Monthly, new DateTime(currentDate.Year, currentDate.Month, 1).AddMonths(1).AddDays(-1).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Yearly, new DateTime(currentDate.Year, 12, 31).ToString("yyyy-MM-dd") },
-            { EnumPeriod.Never, "" }
-        };
-        return dictionary[key];
+        return dictionaryEndDateToJob[key];
     }
 
     public static DateTime GetNextUtilDay(DateTime dateTime)

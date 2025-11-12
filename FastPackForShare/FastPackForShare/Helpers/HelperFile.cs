@@ -1,21 +1,13 @@
 ﻿using FastPackForShare.Enums;
 using FastPackForShare.Extensions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
 using System.IO.Compression;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FastPackForShare.Helpers;
 
 public static class HelperFile
 {
-    private static string ValidateContentTypeFile(string key)
-    {
-        Dictionary<string, string> dictionary = new()
+    private static readonly Dictionary<string, string> dictionaryContentTypeFile = new()
     {
         { ".jpg", "image/jpeg" },
         { ".jpeg", "image/jpeg" },
@@ -24,7 +16,25 @@ public static class HelperFile
         { ".mp4", "video/mp4" }
     };
 
-        if (dictionary.TryGetValue(key, out var value))
+    private static readonly Dictionary<EnumFile, string> dictionaryMemoryStreamExtension = new Dictionary<EnumFile, string>
+    {
+        { EnumFile.Excel, $"{EnumFile.Excel.GetDisplayName()}" },
+        { EnumFile.Pdf, $"{EnumFile.Pdf.GetDisplayName()}" },
+        { EnumFile.Word, $"{EnumFile.Word.GetDisplayName()}" }
+    };
+
+    private static readonly Dictionary<EnumFile, (string, string)> dictionaryMemoryStreamType = new Dictionary<EnumFile, (string, string)>
+    {
+        { EnumFile.Excel, ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx") },
+        { EnumFile.Pdf, ("application/pdf", "pdf") },
+        { EnumFile.Word, ("application/octet-stream", "docx") },
+        { EnumFile.Zip, ("application/zip", "zip") },
+        { EnumFile.Png, ("image/png", "png") }
+    };
+
+    private static string ValidateContentTypeFile(string key)
+    {
+        if (dictionaryContentTypeFile.TryGetValue(key, out var value))
             return value;
 
         return string.Empty;
@@ -173,27 +183,12 @@ public static class HelperFile
 
     public static string GetMemoryStreamExtension(EnumFile key)
     {
-        Dictionary<EnumFile, string> dictionary = new Dictionary<EnumFile, string>
-    {
-        { EnumFile.Excel, $"{EnumFile.Excel.GetDisplayName()}" },
-        { EnumFile.Pdf, $"{EnumFile.Pdf.GetDisplayName()}" },
-        { EnumFile.Word, $"{EnumFile.Word.GetDisplayName()}" }
-    };
-        return dictionary[key];
+        return dictionaryMemoryStreamExtension[key];
     }
 
     public static (string Type, string Extension) GetMemoryStreamType(EnumFile key)
     {
-        Dictionary<EnumFile, (string, string)> dictionary = new Dictionary<EnumFile, (string, string)>
-    {
-        { EnumFile.Excel, ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "xlsx") },
-        { EnumFile.Pdf, ("application/pdf", "pdf") },
-        { EnumFile.Word, ("application/octet-stream", "docx") },
-        { EnumFile.Zip, ("application/zip", "zip") },
-        { EnumFile.Png, ("image/png", "png") }
-    };
-
-        return dictionary[key];
+        return dictionaryMemoryStreamType[key];
     }
 
     #endregion
