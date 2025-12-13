@@ -1,8 +1,7 @@
 ﻿using FastPackForShare.Enums;
 using FastPackForShare.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FastPackForShare.Containers;
 
@@ -29,28 +28,13 @@ public static class ContainerFPFSwaggerOptional
                 In = ParameterLocation.Header,
                 Description = swaggerDocConfig.Description,
             });
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                          new OpenApiSecurityScheme
-                          {
-                              Reference = new OpenApiReference
-                              {
-                                  Type = ReferenceType.SecurityScheme,
-                                  Id = "Bearer"
-                              }
-                          },
-                         new string[] {}
-                    }
-                });
+
+            c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+            {
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+            });
 
             c.OperationFilter<AuthOperationFilter>();
-
-            c.MapType<EnumStatus>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
-            });
         });
     }
 }

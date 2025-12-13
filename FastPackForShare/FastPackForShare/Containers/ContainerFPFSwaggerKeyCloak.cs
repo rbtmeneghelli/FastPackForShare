@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FastPackForShare.Containers;
 
@@ -52,28 +51,12 @@ public static class ContainerFPFSwaggerKeyCloak
                 }
             });
 
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "oauth2"
-                        }
-                    },
-                    new[] { "openid", "profile", "email" }
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
 
             options.OperationFilter<AuthOperationFilter>();
-
-            options.MapType<EnumStatus>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
-            });
         });
     }
 

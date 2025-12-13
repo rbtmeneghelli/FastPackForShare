@@ -5,8 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FastPackForShare.Containers;
@@ -21,21 +20,9 @@ public static class ContainerFPFSwaggerVersion
 
             c.AddSecurityDefinition("Bearer", GetBearerConfig());
 
-            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+            c.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = GetSecurityConfig()
-                    },
-                    new string[] {}
-                }
-            });
-
-            c.MapType<EnumStatus>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
         });
 
@@ -66,15 +53,6 @@ public static class ContainerFPFSwaggerVersion
             BearerFormat = "JWT",
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.ApiKey
-        };
-    }
-
-    private static OpenApiReference GetSecurityConfig()
-    {
-        return new OpenApiReference()
-        {
-            Type = ReferenceType.SecurityScheme,
-            Id = "Bearer"
         };
     }
 }
@@ -126,7 +104,7 @@ public class SwaggerDefaultValues : IOperationFilter
         operation.Responses.Add(ConstantHttpStatusCode.UNAUTHORIZED_CODE.ToString(), new OpenApiResponse { Description = ConstantMessageResponse.UNAUTHORIZED_CODE, });
         operation.Responses.Add(ConstantHttpStatusCode.FORBIDDEN_CODE.ToString(), new OpenApiResponse { Description = ConstantMessageResponse.FORBIDDEN_CODE });
         operation.Responses.Add(ConstantHttpStatusCode.INTERNAL_ERROR_CODE.ToString(), new OpenApiResponse { Description = ConstantMessageResponse.INTERNAL_ERROR_CODE });
-        operation.Deprecated = context.ApiDescription.IsDeprecated() ? true : OpenApiOperation.DeprecatedDefault;
+        operation.Deprecated = context.ApiDescription.IsDeprecated();
 
         if (GuardClauseExtension.IsNull(operation.Parameters))
         {
@@ -141,7 +119,7 @@ public class SwaggerDefaultValues : IOperationFilter
 
             var routeInfo = description.RouteInfo;
 
-            operation.Deprecated = context.ApiDescription.IsDeprecated() ? true : OpenApiOperation.DeprecatedDefault;
+            operation.Deprecated = context.ApiDescription.IsDeprecated();
 
             if (GuardClauseExtension.IsNull(parameter.Description))
             {
@@ -152,13 +130,6 @@ public class SwaggerDefaultValues : IOperationFilter
             {
                 continue;
             }
-
-            if (parameter.In != ParameterLocation.Path && GuardClauseExtension.IsNull(parameter.Schema.Default))
-            {
-                parameter.Schema.Default = new OpenApiString(routeInfo.DefaultValue.ToString());
-            }
-
-            parameter.Required |= !routeInfo.IsOptional;
         }
     }
 }

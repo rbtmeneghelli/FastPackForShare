@@ -2,8 +2,7 @@
 using FastPackForShare.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.OpenApi.Any;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace FastPackForShare.Containers;
 
@@ -22,38 +21,22 @@ public static class ContainerFPFSwaggerRdStation
                 License = new OpenApiLicense() { Name = swaggerDocConfig.License.Name, Url = swaggerDocConfig.License.Url }
             });
 
-            options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
+                In = ParameterLocation.Header,
+                Description = "Insira o token JWT desta maneira: Bearer {seu token}",
+                Scheme = "Bearer",
                 Name = "Authorization",
-                Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-                Scheme = "bearer",
-                BearerFormat = "JWT",
-                In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                Description = "Insira o token JWT no campo abaixo. Exemplo: Bearer {seu_token}"
+                Type = SecuritySchemeType.ApiKey,
+                BearerFormat = "JWT"
             });
 
-            options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+            options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
             {
-                {
-                    new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                    {
-                        Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                        {
-                            Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                            Id = "Bearer"
-                        }
-                    },
-                    new string[] {}
-                }
+                [new OpenApiSecuritySchemeReference("Bearer", document)] = []
             });
 
             options.OperationFilter<AuthOperationFilter>();
-
-            options.MapType<EnumStatus>(() => new OpenApiSchema
-            {
-                Type = "string",
-                Enum = Enum.GetNames(typeof(EnumStatus)).Select(x => (IOpenApiAny)new OpenApiString(x)).ToList()
-            });
         });
     }
 

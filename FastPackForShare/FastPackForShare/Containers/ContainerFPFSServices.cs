@@ -166,7 +166,7 @@ public static class ContainerFastPackForShareServices
 
     public static void RegisterAutoMapper(this IServiceCollection services, Assembly[] assemblies)
     {
-        services.AddAutoMapper(assemblies);
+        services.AddAutoMapper(cfg => {}, assemblies);
     }
 
     public static void RegisterPolicy(this IServiceCollection services)
