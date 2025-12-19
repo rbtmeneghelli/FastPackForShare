@@ -9,19 +9,12 @@ namespace FastPackForShare.Default;
 /// </summary>
 public abstract class BaseEntityModel : GenericEntityModel
 {
-    private long? _id;
-    public long? Id { get { return _id; } set { _id = value.HasValue ? (value > 0 ? value : null) : null; } }
+    /// <summary>
+    /// A palavra chave field faz o papel do campo private, nesse caso seria o _id
+    /// </summary>
 
-    //#region Código valido a partir do NET 10
-
-    ///// <summary>
-    ///// A palavra chave field faz o papel do campo private, nesse caso seria o _id
-    ///// </summary>
-
-    //[Display(Name = "Id")]
-    //public long? Id { get { return field; } set { field = value.HasValue ? (value > 0 ? value : null) : null; } }
-
-    //#endregion
+    [Display(Name = "Id")]
+    public long? Id { get { return field; } set { field = value.HasValue ? (value > 0 ? value : null) : null; } }
 
     public DateTime? CreatedAt { get; set; }
 
@@ -38,4 +31,19 @@ public abstract class BaseEntityModel : GenericEntityModel
 
     protected abstract void CreateEntityIsValid();
     protected abstract void UpdateEntityIsValid();
+
+    public override bool Equals(object obj)
+    {
+        if (obj is not BaseEntityModel other)
+            return false;
+
+        if (ReferenceEquals(this, other))
+            return true;
+
+        return Id == other.Id;
+    }
+
+    public static bool operator ==(BaseEntityModel a, BaseEntityModel b) => a.Equals(b);
+    public static bool operator !=(BaseEntityModel a, BaseEntityModel b) => !(a == b);
+    public override int GetHashCode() => Id.GetHashCode();
 }
