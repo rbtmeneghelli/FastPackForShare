@@ -27,12 +27,21 @@ public static class ContainerFastPackForShareServices
 {
     public static void RegisterDbConnection<TContext>(this IServiceCollection services, string connectionString) where TContext : DbContext
     {
+        /* E o mais indicado a ser utilizado, adotar esse tipo de modelo de conexão nos projetos */
         services.AddDbContextFactory<TContext>(opts => opts.UseSqlServer(connectionString,
         b => b.MinBatchSize(5).MaxBatchSize(50).MigrationsAssembly(typeof(TContext).Assembly.FullName)).
         LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuting })
         .EnableSensitiveDataLogging());
 
+        /* Para serviços basicos, esse tipo de conexão é valido */
         services.AddDbContext<TContext>(opts =>
+        opts.UseSqlServer(connectionString,
+        b => b.MinBatchSize(5).MaxBatchSize(50).MigrationsAssembly(typeof(TContext).Assembly.FullName)).
+        LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuting })
+        .EnableSensitiveDataLogging());
+
+        /* E mais performatico que o codigo padrão do DbContext, porém para ser consumido internamente pela API sem serviços externos como mensageria, chamadas background e etc... */
+        services.AddDbContextPool<TContext>(opts =>
         opts.UseSqlServer(connectionString,
         b => b.MinBatchSize(5).MaxBatchSize(50).MigrationsAssembly(typeof(TContext).Assembly.FullName)).
         LogTo(Console.WriteLine, new[] { RelationalEventId.CommandExecuting })
