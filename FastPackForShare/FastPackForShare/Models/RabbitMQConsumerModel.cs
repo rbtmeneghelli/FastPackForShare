@@ -2,8 +2,8 @@
 
 public readonly record struct RabbitMQConsumerModel
 {
-    public string QueueName { get; init; }
-    public bool QueueIsDurable { get; init; }
+    public required string QueueName { get; init; }
+    public required bool QueueIsDurable { get; init; }
 
     public RabbitMQConsumerModel() { }
 

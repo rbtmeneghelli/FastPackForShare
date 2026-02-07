@@ -222,7 +222,7 @@ public class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
 
         if (tokenHandler.CanReadToken(token) is false)
-            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Message = "Token Inválido" };
+            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Data = null, Message = "Token Inválido" };
 
         var tokenData = tokenHandler.ReadToken(token);
 
@@ -231,9 +231,9 @@ public class TokenService : ITokenService
         bool expired = ((brazilianDate.Ticks / TimeSpan.TicksPerSecond) > (validDate.Ticks / TimeSpan.TicksPerSecond));
 
         if (expired)
-            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Message = "Token Inválido" };
+            return new CustomResponseModel { StatusCode = (int)HttpStatusCode.InternalServerError, Data = null, Message = "Token Inválido" };
 
-        return new CustomResponseModel { StatusCode = (int)HttpStatusCode.OK, Message = "Token Valido" };
+        return new CustomResponseModel { StatusCode = (int)HttpStatusCode.OK, Data = null, Message = "Token Valido" };
     }
 
     #endregion

@@ -39,7 +39,7 @@ public class OpenBehavior
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="openBehaviorType"/> is null.</exception>
     private static void ValidatePipelineBehaviorType(Type openBehaviorType)
     {
-        if (openBehaviorType == null) throw new ArgumentNullException($"Open behavior type can not be null.");
+        ArgumentNullException.ThrowIfNull(openBehaviorType, nameof(openBehaviorType));
 
         bool isPipelineBehavior = openBehaviorType.GetInterfaces()
             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>));

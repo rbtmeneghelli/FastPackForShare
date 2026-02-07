@@ -2,6 +2,6 @@
 
 public record MemoryCacheModel
 {
-    public int AbsoluteExpirationInHours { get; init; }
-    public int SlidingExpirationInMinutes { get; init; }
+    public required int AbsoluteExpirationInHours { get; init; }
+    public required int SlidingExpirationInMinutes { get; init; }
 }
