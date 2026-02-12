@@ -1,11 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using FastPackForShare.Cryptography;
+﻿using FastPackForShare.Cryptography;
 using FastPackForShare.Extensions;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Collections.Frozen;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace FastPackForShare.Services;
 
@@ -146,7 +147,7 @@ public class TokenService : ITokenService
             ["username"] = login,
             ["password"] = password,
             ["scope"] = "openid profile"
-        }));
+        }.ToFrozenDictionary()));
 
         tokenResponse.EnsureSuccessStatusCode();
 

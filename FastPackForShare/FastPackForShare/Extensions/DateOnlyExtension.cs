@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Frozen;
+using System.Globalization;
 
 namespace FastPackForShare.Extensions;
 
@@ -31,11 +32,12 @@ public sealed class DateOnlyExtension
     public DateTime GetNextUtilDay(DateTime dateTime)
     {
         // Caso tenha feriado nacional ou internacional, fazer uma consulta no BD pra isso...depois um IF para validar e somar 1 dia...
-        Dictionary<DayOfWeek, DateTime> dictionary = new Dictionary<DayOfWeek, DateTime>
+        var dictionary = new Dictionary<DayOfWeek, DateTime>
         {
             { DayOfWeek.Saturday, dateTime.AddDays(2) },
             { DayOfWeek.Sunday, dateTime.AddDays(1) }
-        };
+        }.ToFrozenDictionary();
+
         return dictionary.TryGetValue(dateTime.DayOfWeek, out var dtResult) ? dtResult : dateTime;
     }
 

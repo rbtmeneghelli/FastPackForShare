@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using System.Collections.Frozen;
 
 namespace FastPackForShare.Containers;
 
@@ -46,7 +47,7 @@ public static class ContainerFPFSwaggerKeyCloak
                             { "openid", "Login básico" },
                             { "profile", "Perfil do usuário" },
                             { "email", "E-mail do usuário" }
-                        }
+                        }.ToFrozenDictionary()
                     }
                 }
             });

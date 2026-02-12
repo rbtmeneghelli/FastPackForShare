@@ -4,6 +4,7 @@ using FastPackForShare.Interfaces;
 using FastPackForShare.Models;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using System.Collections.Frozen;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
@@ -36,7 +37,7 @@ public sealed class RdStationService : IRdStationService
             { "client_id", _rdStationConfigModel.ClientId },
             { "client_secret", _rdStationConfigModel.ClientSecret },
             { "code", code }
-        };
+        }.ToFrozenDictionary();
 
         var content = new FormUrlEncodedContent(values);
 
@@ -80,7 +81,7 @@ public sealed class RdStationService : IRdStationService
             { "client_secret", _rdStationConfigModel.ClientSecret },
             { "refresh_token", currentToken },
             { "grant_type", "refresh_token" }
-        };
+        }.ToFrozenDictionary();
 
         var content = new FormUrlEncodedContent(values);
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
