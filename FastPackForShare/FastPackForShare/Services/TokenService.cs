@@ -137,6 +137,7 @@ public class TokenService : ITokenService
     public async Task<string> CreateJwtTokenByKeyCloak(string url, string login, string password)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         httpClient.DefaultRequestHeaders.Accept.Clear();
         var tokenResponse = await httpClient.PostAsync(url,
         new FormUrlEncodedContent(new Dictionary<string, string>
@@ -147,7 +148,7 @@ public class TokenService : ITokenService
             ["username"] = login,
             ["password"] = password,
             ["scope"] = "openid profile"
-        }.ToFrozenDictionary()));
+        }.ToFrozenDictionary()), cts.Token);
 
         tokenResponse.EnsureSuccessStatusCode();
 

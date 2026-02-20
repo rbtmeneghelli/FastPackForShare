@@ -41,8 +41,9 @@ public sealed class RdStationService : IRdStationService
 
         var content = new FormUrlEncodedContent(values);
 
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
-        var response = await httpClient.PostAsync("https://api.rd.services/auth/token", content);
+        var response = await httpClient.PostAsync("https://api.rd.services/auth/token", content, cts.Token);
         var result = await response.Content.ReadAsStringAsync();
 
         return result;
@@ -63,8 +64,9 @@ public sealed class RdStationService : IRdStationService
 
         var content = new StringContent(JsonSerializer.Serialize(leadJson), Encoding.UTF8, "application/json");
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        var response = await httpClient.PostAsync("https://api.rd.services/platform/events", content);
+        var response = await httpClient.PostAsync("https://api.rd.services/platform/events", content, cts.Token);
         var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
@@ -85,7 +87,8 @@ public sealed class RdStationService : IRdStationService
 
         var content = new FormUrlEncodedContent(values);
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
-        var response = await httpClient.PostAsync("https://api.rd.services/auth/token", content);
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+        var response = await httpClient.PostAsync("https://api.rd.services/auth/token", content, cts.Token);
         var json = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
@@ -99,8 +102,9 @@ public sealed class RdStationService : IRdStationService
     public async Task<RdStationResult> ApplyRequestHttpGet<TContent>(RdStationReqDto rdStationReqDto)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
-        var response = await httpClient.GetAsync(rdStationReqDto.URL);
+        var response = await httpClient.GetAsync(rdStationReqDto.URL, cts.Token);
         var result = await GetResponse<TContent>(response);
         return result;
     }
@@ -108,8 +112,9 @@ public sealed class RdStationService : IRdStationService
     public async Task<RdStationResult> ApplyRequestHttpPost<TContent>(RdStationReqDto rdStationReqDto)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
-        var response = await httpClient.PostAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
+        var response = await httpClient.PostAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad, cts.Token);
         var result = await GetResponse<TContent>(response);
         return result;
     }
@@ -117,8 +122,9 @@ public sealed class RdStationService : IRdStationService
     public async Task<RdStationResult> ApplyRequestHttpPut<TContent>(RdStationReqDto rdStationReqDto)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
-        var response = await httpClient.PutAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad);
+        var response = await httpClient.PutAsJsonAsync(rdStationReqDto.URL, rdStationReqDto.PayLoad, cts.Token);
         var result = await GetResponse<TContent>(response);
         return result;
     }
@@ -126,8 +132,9 @@ public sealed class RdStationService : IRdStationService
     public async Task<RdStationResult> ApplyRequestHttpDelete<TContent>(RdStationReqDto rdStationReqDto)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         await GenerateTokenAutentication(rdStationReqDto.EnumRdStationAutentication);
-        var response = await httpClient.DeleteAsync(rdStationReqDto.URL);
+        var response = await httpClient.DeleteAsync(rdStationReqDto.URL, cts.Token);
         var result = await GetResponse<TContent>(response);
         return result;
     }
@@ -135,6 +142,7 @@ public sealed class RdStationService : IRdStationService
     private async Task GenerateTokenAutentication(EnumRdStationAutentication enumRdStationAuthentication)
     {
         var httpClient = _ihttpClientFactory.CreateClient("Signed");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
         DateTime currentDateTime = DateOnlyExtension.GetDateTimeNowFromBrazil();
         RdStationRespTokenDto rdStationAuthentication = new();
 
@@ -149,7 +157,7 @@ public sealed class RdStationService : IRdStationService
                     code = _rdStationConfigModel.Code
                 };
 
-                var response = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token?token_by={_rdStationConfigModel.Code}", payLoad);
+                var response = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token?token_by={_rdStationConfigModel.Code}", payLoad, cts.Token);
 
                 if (response.StatusCode.Equals(HttpStatusCode.OK))
                 {
@@ -175,7 +183,7 @@ public sealed class RdStationService : IRdStationService
                     refresh_token = cachedObject.RefreshToken
                 };
 
-                var responseRefresh = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado);
+                var responseRefresh = await httpClient.PostAsJsonAsync($"https://api.rd.services/auth/token", payLoadAtualizado, cts.Token);
                 if (responseRefresh.StatusCode.Equals(HttpStatusCode.OK))
                 {
                     rdStationAuthentication = await responseRefresh.Content.ReadFromJsonAsync<RdStationRespTokenDto>();

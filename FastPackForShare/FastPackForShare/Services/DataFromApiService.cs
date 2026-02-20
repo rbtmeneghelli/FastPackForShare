@@ -16,10 +16,12 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
 
     public async Task<T> GetDataFromExternalAPI(string apiPath)
     {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
+
         try
         {
             var client = _httpClientFactory.CreateClient("Signed");
-            var response = await client.GetFromJsonAsync<T>(apiPath);
+            var response = await client.GetFromJsonAsync<T>(apiPath, cts.Token);
             return response;
         }
         catch (Exception ex)
@@ -34,8 +36,9 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
     {
         try
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
             var client = _httpClientFactory.CreateClient("Signed");
-            var response = await client.GetFromJsonAsync<IEnumerable<T>>(apiPath);
+            var response = await client.GetFromJsonAsync<IEnumerable<T>>(apiPath, cts.Token);
             return response;
         }
         catch (Exception ex)
@@ -50,8 +53,9 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
     {
         try
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
             var client = _httpClientFactory.CreateClient("Signed");
-            var response = await client.PostAsJsonAsync(apiPath, data);
+            var response = await client.PostAsJsonAsync(apiPath, data, cts.Token);
             response.EnsureSuccessStatusCode();
             return true;
         }
@@ -67,8 +71,9 @@ public class DataFromApiService<T> : BaseHandlerService, IDataFromApiService<T> 
     {
         try
         {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(90));
             var client = _httpClientFactory.CreateClient("Signed");
-            var response = await client.PutAsJsonAsync(apiPath, data);
+            var response = await client.PutAsJsonAsync(apiPath, data, cts.Token);
             response.EnsureSuccessStatusCode();
             return true;
         }
