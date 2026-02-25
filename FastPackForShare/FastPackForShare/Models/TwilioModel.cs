@@ -2,7 +2,14 @@
 
 public sealed record TwilioModel
 {
-    public string AccountSid { get; set; }
-    public string AuthToken { get; set; }
-    public string TwilioNumber { get; set; }
+    public required string AccountSid { get; init; }
+    public required string AuthToken { get; init; }
+    public required string TwilioNumber { get; init; }
+
+    public TwilioModel(string accountSid, string authToken, string twilioNumber)
+    {
+        AccountSid = accountSid;
+        AuthToken = authToken;
+        TwilioNumber = twilioNumber;
+    }
 }
