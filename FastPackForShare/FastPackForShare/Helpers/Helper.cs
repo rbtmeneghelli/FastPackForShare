@@ -716,15 +716,16 @@ public sealed class Helper
 
     public static IEnumerable<DropDownListModel> ConvertEnumToList<T>() where T : Enum
     {
-        IEnumerable<DropDownListModel> list = Enum.GetValues(typeof(T))
-            .Cast<T>()
-            .Select(x => new DropDownListModel
-            {
-                Id = Convert.ToInt64(x),
-                Description = x.ToString()
-            });
-
-        return list;
+        return Enum
+               .GetValues(typeof(T))
+               .Cast<T>()
+               .Select(x => new DropDownListModel
+               {
+                   Id = Convert.ToInt64(x),
+                   Description = x.ToString()
+               })
+               .OrderBy(x => x.Description)
+               .ToList();
     }
 
     public static Dictionary<string, object> ObjectToDictionary(object source)
