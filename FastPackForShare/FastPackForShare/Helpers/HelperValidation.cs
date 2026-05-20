@@ -7,7 +7,7 @@ public static class HelperValidation
 {
     public static bool ItensList()
     {
-        List<string> arrNames = new List<string>() { "xpto", "Visual C#", null, ".NET", "2017" };
+        List<string> arrNames = new List<string>(capacity: 5) { "xpto", "Visual C#", null, ".NET", "2017" };
         bool result = arrNames.TrueForAll(val => !string.IsNullOrEmpty(val));
         return result;
     }

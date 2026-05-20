@@ -115,7 +115,7 @@ public class ListExtensionMethod
 
     #region Criando uma lista com valores no NET atual e NET 9
 
-    public IEnumerable<int> GetListNET() => new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+    public IEnumerable<int> GetListNET() => new List<int>(capacity: 10) { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
     public IEnumerable<int> GetListNET9() => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     #endregion

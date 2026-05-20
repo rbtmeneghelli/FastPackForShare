@@ -1,25 +1,27 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using FastPackForShare.Services;
-using FastPackForShare.Services.Factory;
+﻿using DocumentFormat.OpenXml.Presentation;
+using FastPackForShare.Exceptions;
+using FastPackForShare.Extensions;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Interfaces.Factory;
-using Hangfire;
-using Serilog;
+using FastPackForShare.Models;
+using FastPackForShare.Services;
+using FastPackForShare.Services.Factory;
 using FastPackForShare.SimpleMediator.MicrosofExtensionsDI;
-using System.Reflection;
+using FluentValidation;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Serilog;
+using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using System.Collections.ObjectModel;
 using System.Data;
-using FluentValidation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.RateLimiting;
+using System.Reflection;
 using System.Threading.RateLimiting;
-using FastPackForShare.Models;
-using FastPackForShare.Exceptions;
-using Serilog.Events;
 
 namespace FastPackForShare.Containers;
 
@@ -71,29 +73,59 @@ public static class ContainerFastPackForShareServices
         .AddScoped<IMetaService, MetaService>();
     }
 
-    public static void RegisterCors(this IServiceCollection services, string[] corsSettings, string corsPolicyName)
+    public static void RegisterExternalCors(this IServiceCollection services, string[] corsSettings, string corsPolicyNamePrincipal, string corsPolicyNameOptional = "")
     {
         services.AddCors(options =>
         {
-            options.AddPolicy(corsPolicyName, builder =>
+            options.AddPolicy(corsPolicyNamePrincipal, builder =>
             {
                 builder
-                .WithOrigins(corsSettings) // Configuração de sites que tem permissão para acessar a API
+                .WithOrigins(corsSettings)
                 .WithMethods("GET", "POST", "PUT", "DELETE")
-                .SetIsOriginAllowed((host) => true)
-                .AllowCredentials()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+                .WithHeaders("Content-Type", "Authorization");
             });
+
+            if (GuardClauseExtension.IsNotNullOrWhiteSpace(corsPolicyNameOptional))
+            {
+                options.AddPolicy(corsPolicyNameOptional, builder =>
+                {
+                    builder
+                    .WithOrigins(corsSettings)
+                    .SetIsOriginAllowed((host) => true)
+                    .AllowCredentials()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+                });
+            }
         });
     }
 
     public static void RegisterHttpClient(this IServiceCollection services)
     {
-        services.AddHttpClient("Signed")
+        services
+        .AddHttpClient("Signed")
         .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        })
+        .AddStandardResilienceHandler(options =>
+        {
+            // Maximo de 3 tentativas com 2 segundos de intervalo
+            options.Retry.MaxRetryAttempts = 3;
+            options.Retry.Delay = TimeSpan.FromSeconds(2);
+
+            // Timeout de 2 minuto para cada requisição
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(120);
+
+            // Circuit Breaker: Abre o circuito por 30 segundos após 5 falhas consecutivas
+            options.CircuitBreaker.FailureRatio = 0.5;
+            options.CircuitBreaker.MinimumThroughput = 5;
+            options.CircuitBreaker.BreakDuration = TimeSpan.FromSeconds(30);
+
+            // Rate Limiting: Limita a 100 requisições por minuto
+            options.RateLimiter.DefaultRateLimiterOptions.PermitLimit = 100;
+            options.RateLimiter.DefaultRateLimiterOptions.QueueLimit = 50;
+            options.RateLimiter.DefaultRateLimiterOptions.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
         });
     }
 
@@ -176,7 +208,7 @@ public static class ContainerFastPackForShareServices
 
     public static void RegisterAutoMapper(this IServiceCollection services, Assembly[] assemblies)
     {
-        services.AddAutoMapper(cfg => {}, assemblies);
+        services.AddAutoMapper(cfg => { }, assemblies);
     }
 
     public static void RegisterPolicy(this IServiceCollection services)
