@@ -12,7 +12,7 @@ public static class HelperValidation
         return result;
     }
 
-    public static bool Cpf(string vrCPF)
+    public static bool CpfValidation(string vrCPF)
     {
         bool equal = true;
         string value = vrCPF.Replace(".", "").Replace("-", "");
@@ -74,7 +74,7 @@ public static class HelperValidation
 
     }
 
-    public static bool Cnpj(string vrCNPJ)
+    public static bool CnpjValidation(string vrCNPJ)
     {
 
         string CNPJ = vrCNPJ.Replace(".", "").Replace("/", "").Replace("-", "");
