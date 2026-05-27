@@ -4,6 +4,7 @@ using FastPackForShare.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
 using FastPackForShare.Interfaces;
+using FastPackForShare.Bases;
 
 namespace FastPackForShare.Controllers.Generics;
 
@@ -60,76 +61,42 @@ public abstract class GenericController : ControllerBase
     public IActionResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
     {
         int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
+        var message = string.Empty;
 
         if (OperationIsValid() && arrStatusCode.Contains(statusCode))
         {
-            if (result is not null)
-            {
-                return StatusCode(statusCode, new
-                {
-                    success = true,
-                    data = result,
-                    message = statusCode == ConstantHttpStatusCode.CREATE_CODE
-                              ? ConstantMessageResponse.CREATE_CODE
-                              : messageResponse
-                });
-            }
-            else
-            {
-                return StatusCode(statusCode, new
-                {
-                    success = true,
-                    message = ConstantMessageResponse.NO_CONTENT_CODE
-                });
-            }
+            message = result is not null ? 
+                      messageResponse : 
+                      ConstantMessageResponse.NO_CONTENT_CODE;
         }
         else
         {
-            return StatusCode(statusCode, new
-            {
-                success = false,
-                message = _notificationService.HaveNotification()
-                          ? ConstantMessageResponse.GetMessageResponse(statusCode)
-                          : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
-            });
+            message = _notificationService.HaveNotification()
+                      ? ConstantMessageResponse.GetMessageResponse(statusCode)
+                      : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message));
         }
+
+        return StatusCode(statusCode, new BaseResultPatternModel(statusCode, result, message));
     }
 
     public IActionResult CustomResponse(CustomResponseModel customResponseModel)
     {
         int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
+        var message = string.Empty;
 
         if (OperationIsValid() && arrStatusCode.Contains(customResponseModel.StatusCode))
         {
-            if (customResponseModel.Data is not null)
-            {
-                return StatusCode(customResponseModel.StatusCode, new
-                {
-                    success = true,
-                    data = customResponseModel.Data,
-                    message = customResponseModel.StatusCode == ConstantHttpStatusCode.CREATE_CODE
-                              ? ConstantMessageResponse.CREATE_CODE
-                              : customResponseModel.Message
-                });
-            }
-            else
-            {
-                return StatusCode(customResponseModel.StatusCode, new
-                {
-                    success = true,
-                    message = ConstantMessageResponse.NO_CONTENT_CODE
-                });
-            }
+            message = customResponseModel.Data is not null ?
+                      customResponseModel.Message :
+                      ConstantMessageResponse.NO_CONTENT_CODE;
         }
         else
         {
-            return StatusCode(customResponseModel.StatusCode, new
-            {
-                success = false,
-                message = _notificationService.HaveNotification()
-                          ? ConstantMessageResponse.GetMessageResponse(customResponseModel.StatusCode)
-                          : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
-            });
+            message = _notificationService.HaveNotification() ?
+                      string.Join(',', _notificationService.GetNotifications().Select(n => n.Message)) :
+                      string.Empty;
         }
+
+        return StatusCode(customResponseModel.StatusCode, new BaseResultPatternModel(customResponseModel.StatusCode, customResponseModel.Data, message));
     }
 }

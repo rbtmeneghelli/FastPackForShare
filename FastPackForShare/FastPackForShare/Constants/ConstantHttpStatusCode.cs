@@ -13,4 +13,10 @@ public static class ConstantHttpStatusCode
     public const int INTERNAL_ERROR_CODE = (int)HttpStatusCode.InternalServerError;
     public const int FORBIDDEN_CODE = (int)HttpStatusCode.Forbidden;
     public const int UNPROCESSABLE_CONTENT = (int)HttpStatusCode.UnprocessableContent;
+
+    public static bool TransformHttpStatusCodeToBool(int httpStatusCode)
+    {
+        int[] arrStatus = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE, ConstantHttpStatusCode.NO_CONTENT_CODE];
+        return arrStatus.Contains(httpStatusCode);
+    }
 }
