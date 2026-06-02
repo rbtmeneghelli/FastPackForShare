@@ -26,9 +26,11 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         {
             Title = "Ocorreu um erro inesperado do servidor",
             Status = MapExceptionToStatusCode(exception),
-            Detail = exception.Message
+            Detail = exception.Message,
+            Instance = httpContext.Request.Path
         };
 
+        httpContext.Response.ContentType = "application/problem+json";
         httpContext.Response.StatusCode = problemDetails.Status.Value;
 
         await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
