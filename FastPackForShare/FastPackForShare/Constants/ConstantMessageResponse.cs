@@ -20,22 +20,27 @@ public static class ConstantMessageResponse
     public const string SERVICE_RUNNING = "O serviço {0} está em execução";
     public const string SERVICE_NOT_RUNNING = "O serviço {0} não está em execução";
     public const string REQUEST_API = "Erro ao efetuar request da Api externa: {0}";
+    public const string OK_CODE = "A solicitação foi processada com sucesso";
+    public const string SERVICE_UNAVAILABLE_CODE = "O serviço está temporariamente indisponível. Por favor, tente novamente mais tarde";
+
+    private static readonly FrozenDictionary<int, string> dictionary = new Dictionary<int, string>()
+    {
+        { ConstantHttpStatusCode.OK_CODE,  OK_CODE },
+        { ConstantHttpStatusCode.CREATE_CODE,  CREATE_CODE },
+        { ConstantHttpStatusCode.BAD_REQUEST_CODE, BAD_REQUEST_CODE },
+        { ConstantHttpStatusCode.UNAUTHORIZED_CODE, UNAUTHORIZED_CODE },
+        { ConstantHttpStatusCode.NOT_FOUND_CODE, NOT_FOUND_CODE },
+        { ConstantHttpStatusCode.AUTHENTICATION_REQUIRED_CODE, AUTHENTICATION_REQUIRED_CODE },
+        { ConstantHttpStatusCode.INTERNAL_ERROR_CODE, INTERNAL_ERROR_CODE },
+        { ConstantHttpStatusCode.FORBIDDEN_CODE, FORBIDDEN_CODE },
+        { ConstantHttpStatusCode.SERVICE_UNAVAILABLE_CODE, SERVICE_UNAVAILABLE_CODE },
+    }.ToFrozenDictionary();
 
     public static string GetMessageResponse(int statusCode)
     {
-        var dictionary = new Dictionary<int, string>
-        {
-            { ConstantHttpStatusCode.NOT_FOUND_CODE, NOT_FOUND_CODE },
-            { ConstantHttpStatusCode.BAD_REQUEST_CODE, BAD_REQUEST_CODE },
-            { ConstantHttpStatusCode.UNAUTHORIZED_CODE, UNAUTHORIZED_CODE },
-            { ConstantHttpStatusCode.INTERNAL_ERROR_CODE, INTERNAL_ERROR_CODE },
-            { ConstantHttpStatusCode.OK_CODE, INTERNAL_ERROR_CODE },
-            { ConstantHttpStatusCode.AUTHENTICATION_REQUIRED_CODE, AUTHENTICATION_REQUIRED_CODE },
-        }.ToFrozenDictionary();
-
-        statusCode = statusCode.Equals(ConstantHttpStatusCode.OK_CODE)
-                     ? ConstantHttpStatusCode.INTERNAL_ERROR_CODE
-                     : statusCode;
+        statusCode = dictionary.TryGetValue(statusCode, out _)
+             ? statusCode
+             : ConstantHttpStatusCode.INTERNAL_ERROR_CODE;
 
         return dictionary[statusCode];
     }
