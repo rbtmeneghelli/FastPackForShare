@@ -6,4 +6,4 @@
 /// <param name=""></param>
 /// <param name=""></param>
 /// <returns></returns>
-public union CustomResponseResult(CustomOkResponseResult, CustomErrorResponseResult, Exception);
+//public union CustomResponseResult(CustomOkResponseResult, CustomErrorResponseResult, Exception);
