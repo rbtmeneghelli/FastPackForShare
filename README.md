@@ -43,7 +43,7 @@ EXTERNAL LIBRARIES INCLUDED
 - MongoDb
 - NPOI
 - QuestPDF
-- Swagger (Padr„o ou Versionado com JWT Token)
+- Swagger (Padr√£o ou Versionado com JWT Token)
 - Swagger com protocolo OAuth 2.0 (KeyCloak ou RdStation)
 - SendGrid
 - Serilog
@@ -57,3 +57,6 @@ OPTIONAL EXTERNAL LIBRARIES TO SUBSTITUTE MEDIATR
 LIBRARIES CREATED BY MYSELF TO SUBSTITUTE MEDIATR
 - SimpleMediator
 - DispatcherMediator
+
+NEWS
+- In July 2026, NET version was updated from NET 8 to NET 10
