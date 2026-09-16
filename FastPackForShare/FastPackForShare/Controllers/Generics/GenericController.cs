@@ -15,6 +15,8 @@ namespace FastPackForShare.Controllers.Generics;
 [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomInValidResponseTypeModel))]
 [ProducesResponseType(ConstantHttpStatusCode.FORBIDDEN_CODE, Type = typeof(CustomInValidResponseTypeModel))]
 [ProducesResponseType(ConstantHttpStatusCode.INTERNAL_ERROR_CODE, Type = typeof(CustomInValidResponseTypeModel))]
+[RequestSizeLimit(2 * 1024 * 1024)]
+[ValidateAntiForgeryToken]
 public abstract class GenericController : ControllerBase
 {
     protected readonly INotificationMessageService _notificationService;

@@ -8,8 +8,9 @@ public static class BasePagedResultService
     public static BasePagedResultModel<TGenericDTOModel> GetPaged<TGenericDTOModel>(this IQueryable<TGenericDTOModel> query, int? paramPage, int? paramSize) 
     where TGenericDTOModel : GenericDTOModel
     {
-        int page = paramPage.HasValue ? paramPage.Value : 1;
-        int pageSize = paramSize.HasValue ? paramSize.Value : 10;
+        int page = GetDefaultPageIndex(paramPage);
+        int pageSize = GetDefaultPageSize(paramSize);
+        int totalCount = query?.Count() ?? 0;
 
         var result = new BasePagedResultModel<TGenericDTOModel>();
         result.Page = ++page;
@@ -18,9 +19,11 @@ public static class BasePagedResultService
                                                    .Take(pageSize)
                                                    .AsEnumerable()
                                                    : Enumerable.Empty<TGenericDTOModel>();
+
         result.TotalRecords = result.Results.Count();
         result.NextPage = result.PageSize * result.Page >= result.TotalRecords ? null : (int?)result.Page + 1;
         result.PageCount = result.TotalRecords > 0 ? (int)Math.Ceiling((double)result.TotalRecords / result.PageSize) : 1;
+
         return result;
     }
 
@@ -34,6 +37,6 @@ public static class BasePagedResultService
     }
 
     public static int GetDefaultPageIndex(int? pageIndex) => pageIndex.HasValue ? pageIndex.Value : 1;
-    public static int GetDefaultPageSize(int? pageSize) => pageSize.HasValue ? pageSize.Value : 10;
+    public static int GetDefaultPageSize(int? pageSize) => pageSize.HasValue ? Math.Min(pageSize.Value, 500) : 10;
     private static int GetPagination(int page, int pageSize) => (page - 1) * pageSize;
 }

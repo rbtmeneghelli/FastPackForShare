@@ -33,7 +33,7 @@ public static class ContainerFPFSwaggerAuthentication
                       ValidateAudience = false,
                       ValidateLifetime = true,
                       ValidateIssuerSigningKey = true,
-                      ClockSkew = TimeSpan.Zero,
+                      ClockSkew = TimeSpan.FromSeconds(30),
                       ValidIssuer = tokenSettings.Issuer,
                       ValidAudience = tokenSettings.Audience,
                       IssuerSigningKey = new SymmetricSecurityKey
@@ -62,7 +62,7 @@ public static class ContainerFPFSwaggerAuthentication
                       ValidateAudience = false,
                       ValidateLifetime = true,
                       ValidateIssuerSigningKey = true,
-                      ClockSkew = TimeSpan.Zero,
+                      ClockSkew = TimeSpan.FromSeconds(30),
                       ValidIssuer = jwtConfigModel.Issuer,
                       ValidAudience = jwtConfigModel.Audience,
                       IssuerSigningKey = new SymmetricSecurityKey

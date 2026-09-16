@@ -11,6 +11,7 @@ using FluentValidation;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
@@ -267,6 +268,8 @@ public static class ContainerFastPackForShareServices
                 limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 limiterOptions.QueueLimit = 2; // Máximo de 2 requisições na fila
             });
+
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
     }
 
@@ -274,5 +277,23 @@ public static class ContainerFastPackForShareServices
     {
         services.AddExceptionHandler<GlobalExceptionHandler>();
         services.AddProblemDetails();
+    }
+
+    public static void RegisterHsts(this IServiceCollection services)
+    {
+        services.AddHsts(options =>
+        {
+            options.MaxAge = TimeSpan.FromDays(365);
+            options.IncludeSubDomains = true;
+            options.Preload = true;
+        });
+    }
+
+    public static void RegisterAntiForgery(this IServiceCollection services)
+    {
+        services.AddAntiforgery(options =>
+        {
+            options.HeaderName = "X-CSRF-TOKEN";
+        });
     }
 }
