@@ -257,17 +257,66 @@ public static class ContainerFastPackForShareServices
         });
     }
 
-    public static void RegisterRateLimit(this IServiceCollection services, string policyName)
+    public static void RegisterRateLimit(this IServiceCollection services, string policyName, bool restrictByIP = true)
     {
         services.AddRateLimiter(options =>
         {
-            options.AddFixedWindowLimiter(policyName, limiterOptions =>
+            options.AddFixedWindowLimiter("api", limiter =>
             {
-                limiterOptions.PermitLimit = 5; // Máximo de 5 requisições
-                limiterOptions.Window = TimeSpan.FromSeconds(10); // Por janela de 10 segundos
-                limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                limiterOptions.QueueLimit = 2; // Máximo de 2 requisições na fila
+                limiter.PermitLimit = 10;
+                limiter.Window = TimeSpan.FromMinutes(1);
+                limiter.QueueLimit = 0;
             });
+
+
+            options.AddConcurrencyLimiter($"{policyName}-report", limiter =>
+            {
+                limiter.PermitLimit = 3;
+                limiter.QueueLimit = 10;
+                limiter.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
+
+            if (restrictByIP)
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+                    if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        return RateLimitPartition.GetNoLimiter("anonymous");
+                    }
+
+                    return RateLimitPartition.GetTokenBucketLimiter(
+                        partitionKey: context.User.Identity?.Name ?? "anonymous",
+                        factory: partition => new TokenBucketRateLimiterOptions
+                        {
+                            TokenLimit = 100,
+                            QueueLimit = 0,
+                            ReplenishmentPeriod = TimeSpan.FromSeconds(10),
+                            TokensPerPeriod = 20,
+                            AutoReplenishment = true
+                        }
+                    );
+                });
+            }
+            else
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                {
+                    if (context.User.Identity?.IsAuthenticated != true)
+                    {
+                        return RateLimitPartition.GetNoLimiter("anonymous");
+                    }
+
+                    return RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            PermitLimit = 5,
+                            Window = TimeSpan.FromSeconds(5)
+                        }
+                    );
+                });
+            }
 
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
         });
