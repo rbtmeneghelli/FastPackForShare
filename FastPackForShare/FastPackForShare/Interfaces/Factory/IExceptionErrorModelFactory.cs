@@ -4,5 +4,5 @@ namespace FastPackForShare.Interfaces.Factory;
 
 public interface IExceptionErrorModelFactory
 {
-    ExceptionErrorModel GetResponseErrorModelByException(Exception exception);
+    ExceptionErrorModel GetResponseErrorModelByException(string traceId, Exception exception);
 }

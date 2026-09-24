@@ -1,6 +1,6 @@
-﻿using FastPackForShare.Models;
-using FastPackForShare.Constants;
+﻿using FastPackForShare.Constants;
 using FastPackForShare.Interfaces.Factory;
+using FastPackForShare.Models;
 
 namespace WbNotes.Application.Factory.ResponseErrorModel.Models;
 
@@ -10,19 +10,17 @@ public sealed class ArgumentNullExceptionModel : IExceptionErrorModelFactory
     {
     }
 
-    public ExceptionErrorModel GetResponseErrorModelByException(Exception exception)
+    public ExceptionErrorModel GetResponseErrorModelByException(string traceId, Exception exception)
     {
         StackTrace stackTrace = new StackTrace(exception, true);
         StackFrame frame = stackTrace.GetFrame(stackTrace.FrameCount - 1);
 
-        ExceptionErrorModel exceptionErrorModel = new()
+        return new ExceptionErrorModel
         {
-            StatusCode = ConstantHttpStatusCode.BAD_REQUEST_CODE,
-            Success = false,
-            Title = "Bad Request",
-            ExceptionError = exception.Message
+            Status = ConstantHttpStatusCode.BAD_REQUEST_CODE,
+            Type = "Bad Request",
+            Title = "API Bad Request",
+            Detail = string.Format(ConstantMessageResponse.BAD_REQUEST_CODE_EXCEPTION, traceId),
         };
-
-        return exceptionErrorModel;
     }
 }

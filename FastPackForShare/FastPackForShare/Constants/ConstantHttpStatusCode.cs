@@ -14,6 +14,8 @@ public static class ConstantHttpStatusCode
     public const int FORBIDDEN_CODE = (int)HttpStatusCode.Forbidden;
     public const int UNPROCESSABLE_CONTENT = (int)HttpStatusCode.UnprocessableContent;
     public const int SERVICE_UNAVAILABLE_CODE = (int)HttpStatusCode.ServiceUnavailable;
+    public const int BAD_GATEWAY_CODE = (int)HttpStatusCode.BadGateway;
+
     public static bool TransformHttpStatusCodeToBool(int httpStatusCode)
     {
         int[] arrStatus = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE, ConstantHttpStatusCode.NO_CONTENT_CODE];

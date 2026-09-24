@@ -22,6 +22,8 @@ public static class ConstantMessageResponse
     public const string REQUEST_API = "Erro ao efetuar request da Api externa: {0}";
     public const string OK_CODE = "A solicitação foi processada com sucesso";
     public const string SERVICE_UNAVAILABLE_CODE = "O serviço está temporariamente indisponível. Por favor, tente novamente mais tarde";
+    public const string INTERNAL_ERROR_CODE_EXCEPTION = "Ocorreu um erro interno durante o processamento dos dados pela API. Informe o código {0} ao Suporte";
+    public const string BAD_REQUEST_CODE_EXCEPTION = "Ocorreu um erro durante o processamento dos dados pela API. Informe o código {0} ao Suporte";
 
     private static readonly FrozenDictionary<int, string> dictionary = new Dictionary<int, string>()
     {

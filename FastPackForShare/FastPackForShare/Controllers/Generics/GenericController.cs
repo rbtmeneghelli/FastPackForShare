@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc;
 using FastPackForShare.Interfaces;
 using FastPackForShare.Bases;
+using Microsoft.AspNetCore.Http;
 
 namespace FastPackForShare.Controllers.Generics;
 
@@ -54,51 +55,71 @@ public abstract class GenericController : ControllerBase
         }
     }
 
-    public IActionResult CustomResponseModel(ModelStateDictionary modelState)
+    public IResult CustomResponseModel(ModelStateDictionary modelState)
     {
         NotificationModelIsInvalid(modelState);
         return CustomResponse(ConstantHttpStatusCode.BAD_REQUEST_CODE);
     }
 
-    public IActionResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
+    protected IResult CustomResponse(int statusCode = ConstantHttpStatusCode.OK_CODE, object result = null, string messageResponse = "")
     {
-        int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
-        var message = string.Empty;
+        var response = OperationIsValid() ?
+                       new CustomResponseModel
+                       (
+                           statusCode,
+                           result,
+                           statusCode == ConstantHttpStatusCode.CREATE_CODE
+                         ? ConstantMessageResponse.CREATE_CODE
+                         : messageResponse
+                       ) :
+                       new CustomResponseModel
+                       (
+                           statusCode,
+                           null,
+                           _notificationService.HaveNotification()
+                          ? ConstantMessageResponse.GetMessageResponse(statusCode)
+                          : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
+                       );
 
-        if (OperationIsValid() && arrStatusCode.Contains(statusCode))
-        {
-            message = result is not null ? 
-                      messageResponse : 
-                      ConstantMessageResponse.NO_CONTENT_CODE;
-        }
-        else
-        {
-            message = _notificationService.HaveNotification()
-                      ? ConstantMessageResponse.GetMessageResponse(statusCode)
-                      : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message));
-        }
-
-        return StatusCode(statusCode, new BaseResultPatternModel(statusCode, result, message));
+        return GetResultFromStatusCode(statusCode, response);
     }
 
-    public IActionResult CustomResponse(CustomResponseModel customResponseModel)
+    protected IResult CustomResponse(CustomResponseModel customResponseModel)
     {
-        int[] arrStatusCode = [ConstantHttpStatusCode.OK_CODE, ConstantHttpStatusCode.CREATE_CODE];
-        var message = string.Empty;
+        var response = OperationIsValid() ?
+                       new CustomResponseModel
+                       (
+                           customResponseModel.StatusCode,
+                           customResponseModel.Data,
+                           customResponseModel.StatusCode == ConstantHttpStatusCode.CREATE_CODE
+                         ? ConstantMessageResponse.CREATE_CODE
+                         : customResponseModel.Message
+                       ) :
+                       new CustomResponseModel
+                       (
+                           customResponseModel.StatusCode,
+                           null,
+                           _notificationService.HaveNotification()
+                          ? ConstantMessageResponse.GetMessageResponse(customResponseModel.StatusCode)
+                          : string.Join(',', _notificationService.GetNotifications().Select(n => n.Message))
+                       );
 
-        if (OperationIsValid() && arrStatusCode.Contains(customResponseModel.StatusCode))
-        {
-            message = customResponseModel.Data is not null ?
-                      customResponseModel.Message :
-                      ConstantMessageResponse.NO_CONTENT_CODE;
-        }
-        else
-        {
-            message = _notificationService.HaveNotification() ?
-                      string.Join(',', _notificationService.GetNotifications().Select(n => n.Message)) :
-                      string.Empty;
-        }
+        return GetResultFromStatusCode(customResponseModel.StatusCode, response);
+    }
 
-        return StatusCode(customResponseModel.StatusCode, new BaseResultPatternModel(customResponseModel.StatusCode, customResponseModel.Data, message));
+    private IResult GetResultFromStatusCode(int statusCode, CustomResponseModel response)
+    {
+        return statusCode switch
+        {
+            ConstantHttpStatusCode.OK_CODE => Results.Ok(response),
+            ConstantHttpStatusCode.CREATE_CODE => Results.Created(),
+            ConstantHttpStatusCode.BAD_REQUEST_CODE | ConstantHttpStatusCode.UNPROCESSABLE_CONTENT => Results.BadRequest(response),
+            ConstantHttpStatusCode.UNAUTHORIZED_CODE | ConstantHttpStatusCode.AUTHENTICATION_REQUIRED_CODE => Results.Unauthorized(),
+            ConstantHttpStatusCode.NOT_FOUND_CODE => Results.NotFound(response),
+            ConstantHttpStatusCode.INTERNAL_ERROR_CODE | ConstantHttpStatusCode.SERVICE_UNAVAILABLE_CODE | ConstantHttpStatusCode.BAD_GATEWAY_CODE => Results.InternalServerError(response),
+            ConstantHttpStatusCode.FORBIDDEN_CODE => Results.Forbid(),
+
+            _ => Results.NoContent()
+        };
     }
 }

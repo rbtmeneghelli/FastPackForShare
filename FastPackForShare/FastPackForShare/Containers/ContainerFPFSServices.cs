@@ -324,8 +324,19 @@ public static class ContainerFastPackForShareServices
 
     public static void RegisterGlobalExceptionHandler(this IServiceCollection services)
     {
+        services.AddProblemDetails(options =>
+        {
+            options.CustomizeProblemDetails = context =>
+            {
+                var problem = context.ProblemDetails;
+                var http = context.HttpContext;
+
+                problem.Instance ??= http.Request.Path;
+                problem.Extensions.TryAdd("traceId", http.TraceIdentifier);
+            };
+        });
+
         services.AddExceptionHandler<GlobalExceptionHandler>();
-        services.AddProblemDetails();
     }
 
     public static void RegisterHsts(this IServiceCollection services)

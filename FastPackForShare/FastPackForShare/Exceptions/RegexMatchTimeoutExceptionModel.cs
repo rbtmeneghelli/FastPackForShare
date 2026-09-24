@@ -1,6 +1,6 @@
-﻿using FastPackForShare.Models;
-using FastPackForShare.Constants;
+﻿using FastPackForShare.Constants;
 using FastPackForShare.Interfaces.Factory;
+using FastPackForShare.Models;
 
 namespace WbNotes.Application.Factory.ResponseErrorModel.Models;
 
@@ -10,19 +10,17 @@ public sealed class RegexMatchTimeoutExceptionModel : IExceptionErrorModelFactor
     {
     }
 
-    public ExceptionErrorModel GetResponseErrorModelByException(Exception exception)
+    public ExceptionErrorModel GetResponseErrorModelByException(string traceId, Exception exception)
     {
         StackTrace stackTrace = new StackTrace(exception, true);
         StackFrame frame = stackTrace.GetFrame(stackTrace.FrameCount - 1);
 
-        ExceptionErrorModel exceptionErrorModel = new()
+        return new ExceptionErrorModel
         {
-            StatusCode = ConstantHttpStatusCode.INTERNAL_ERROR_CODE,
-            Success = false,
-            Title = "Server Error",
-            ExceptionError = exception.Message
+            Status = ConstantHttpStatusCode.INTERNAL_ERROR_CODE,
+            Type = "Internal Error",
+            Title = "API Internal Error",
+            Detail = string.Format(ConstantMessageResponse.INTERNAL_ERROR_CODE_EXCEPTION, traceId),
         };
-
-        return exceptionErrorModel;
     }
 }
