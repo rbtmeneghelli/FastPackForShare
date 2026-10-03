@@ -181,7 +181,7 @@ public static class StringExtension
 
     public static string GetInitialsByName(this string fullName)
     {
-        if (GuardClauseExtension.IsNotNullOrWhiteSpace(fullName))
+        if (GuardClauseExtension.IsNullOrWhiteSpace(fullName))
             return string.Empty;
 
         var names = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
