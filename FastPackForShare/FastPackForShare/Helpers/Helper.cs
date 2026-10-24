@@ -741,4 +741,15 @@ public sealed class Helper
 
         return dict;
     }
+
+    public IEnumerable<SecretFriendModel> SortSecretFriend(List<ContactModel> participants)
+    {
+        for (int i = participants.Count - 1; i > 0; i--)
+        {
+            int j = Random.Shared.Next(i + 1);
+            (participants[i], participants[j]) = (participants[j], participants[i]);
+        }
+
+        return participants.Select((p, i) => new SecretFriendModel(p, participants[(i + 1) % participants.Count].Name)).ToList();
+    }
 }
